@@ -8,8 +8,9 @@
 
 import UIKit
 import Social
+import MessageUI
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
                             
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,6 +23,24 @@ class ViewController: UIViewController {
     }
 
 
+    @IBAction func sendEmail(sender: AnyObject) {
+        if MFMailComposeViewController.canSendMail() {
+            var title = "test email"
+            var mailCompose = MFMailComposeViewController()
+            mailCompose.mailComposeDelegate = self
+            mailCompose.title = title
+            self.presentViewController(mailCompose, animated: true, completion: nil)
+        }
+        else {
+            // change the message later
+            var mailAlert:UIAlertView! = UIAlertView(title: "Error!", message: "Doesn't have mail composer", delegate: nil, cancelButtonTitle: "Cancel" )
+            mailAlert.show()
+            println("can't send mail")
+        }
+    
+    }
+
+    
     @IBAction func shareTweet(sender: AnyObject) {
         if (SLComposeViewController.isAvailableForServiceType(SLServiceTypeFacebook)) {
             // can improve by setting initial text to "catch the audience's attention by providing them link
@@ -46,6 +65,27 @@ class ViewController: UIViewController {
             
             var FaceBookAlert:UIAlertView! = UIAlertView(title: "Error!", message: "Check if you have setup a valid Facebook account or allow access to Facebook in the setting", delegate: nil, cancelButtonTitle: "Cancel" )
             FaceBookAlert.show()
+        }
+    }
+    
+    func mailComposeController(controller: MFMailComposeViewController!, didFinishWithResult result: MFMailComposeResult, error: NSError!) {
+        switch(result.value) {
+        case MFMailComposeResultCancelled.value:
+            self.dismissViewControllerAnimated(true, completion: nil)
+            println("cancel")
+            break
+        case MFMailComposeResultFailed.value:
+            println("failed")
+            break
+        case MFMailComposeResultSaved.value:
+            println("save")
+            break
+        case MFMailComposeResultSent.value:
+            println("sent")
+            break
+        default:
+            break
+            
         }
     }
 }

@@ -13,6 +13,7 @@
 		498DEB1B19CA431500A749C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 498DEB1A19CA431500A749C7 /* Images.xcassets */; };
 		498DEB2719CA431500A749C7 /* ShareWithFriendTemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498DEB2619CA431500A749C7 /* ShareWithFriendTemplateTests.swift */; };
 		498DEB3119CB7CEA00A749C7 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 498DEB3019CB7CEA00A749C7 /* Social.framework */; };
+		498DEB3319CB8C0F00A749C7 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 498DEB3219CB8C0F00A749C7 /* MessageUI.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +37,7 @@
 		498DEB2519CA431500A749C7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		498DEB2619CA431500A749C7 /* ShareWithFriendTemplateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareWithFriendTemplateTests.swift; sourceTree = "<group>"; };
 		498DEB3019CB7CEA00A749C7 /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
+		498DEB3219CB8C0F00A749C7 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				498DEB3319CB8C0F00A749C7 /* MessageUI.framework in Frameworks */,
 				498DEB3119CB7CEA00A749C7 /* Social.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -60,6 +63,7 @@
 		498DEB0519CA431500A749C7 = {
 			isa = PBXGroup;
 			children = (
+				498DEB3219CB8C0F00A749C7 /* MessageUI.framework */,
 				498DEB3019CB7CEA00A749C7 /* Social.framework */,
 				498DEB1019CA431500A749C7 /* ShareWithFriendTemplate */,
 				498DEB2319CA431500A749C7 /* ShareWithFriendTemplateTests */,
@@ -330,6 +334,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				INFOPLIST_FILE = ShareWithFriendTemplate/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -341,6 +346,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				INFOPLIST_FILE = ShareWithFriendTemplate/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -399,6 +405,7 @@
 				498DEB2C19CA431500A749C7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		498DEB2D19CA431500A749C7 /* Build configuration list for PBXNativeTarget "ShareWithFriendTemplateTests" */ = {
 			isa = XCConfigurationList;
@@ -407,6 +414,7 @@
 				498DEB2F19CA431500A749C7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
