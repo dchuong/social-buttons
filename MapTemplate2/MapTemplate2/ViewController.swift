@@ -21,8 +21,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UITextFieldDe
         
         self.locManager = CLLocationManager()
         addressText.delegate = self
-        
         locManager.delegate = self
+        
         locManager.desiredAccuracy = kCLLocationAccuracyBest
 
         if (locManager.respondsToSelector(Selector("requestWhenInUseAuthorization"))) {
@@ -48,6 +48,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UITextFieldDe
         return true
     }
     
+    override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
+        addressText.resignFirstResponder()
+    }
     @IBAction func barIndex(sender: AnyObject) {
         switch sender.selectedSegmentIndex as Int {
         case 0:
@@ -66,7 +69,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UITextFieldDe
     
     @IBAction func currentLocation(sender: AnyObject) {
         println("current location")
-         mapView.showsUserLocation = true
+        mapView.showsUserLocation = true
+        mapView.setUserTrackingMode(MKUserTrackingMode.Follow, animated: true)
     }
     
     @IBAction func openMapApp(sender: AnyObject) {
@@ -75,8 +79,10 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UITextFieldDe
         geocoder.geocodeAddressString(self.addressText.text, {(placemarks: [AnyObject]!, error: NSError!) -> Void in
             if let placemark = placemarks?[0] as? CLPlacemark {
                 
-                //self.mapView.addAnnotation(MKPlacemark(placemark: placemark))
-                //var pinitem:MKMapItem = MKMapItem(placemark: placemark as MKPlacemark) // add pinpoint
+                self.mapView.addAnnotation(MKPlacemark(placemark: placemark)) // add pinpoint
+        
+                
+                //var pinitem:MKMapItem = MKMapItem(placemark: placemark as MKPlacemark)
                 var mkPlaceMark: MKPlacemark = MKPlacemark(coordinate: placemark.location.coordinate,
                     addressDictionary: placemark.addressDictionary)
                 var mapItem:MKMapItem = MKMapItem(placemark: mkPlaceMark)
