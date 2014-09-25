@@ -49,18 +49,15 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UITextFieldDe
     }
     
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
-        addressText.resignFirstResponder()
+        addressText.resignFirstResponder()  
     }
     @IBAction func barIndex(sender: AnyObject) {
         switch sender.selectedSegmentIndex as Int {
         case 0:
-            println("0")
             mapView.mapType = MKMapType.Standard
         case 1:
-            println("1")
             mapView.mapType = MKMapType.Satellite
         case 2:
-            println("2")
             mapView.mapType = MKMapType.Hybrid
         default:
             println("default")
