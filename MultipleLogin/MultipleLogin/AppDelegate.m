@@ -18,6 +18,9 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     
     [self loginToServer];
+    sleep(10);
+    [self logoutOfServer];
+    NSLog(@"Program is Done");
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -59,16 +62,49 @@
     if (returnDescriptor != NULL)
     {
         // successful execution
-        NSLog(@"done");
+        NSLog(@"login - done");
         NSLog(@"%@", [returnDescriptor stringValue]);
         return;
     }
     else {
         //there is an error!
-        NSLog(@"error");
+        NSLog(@"login - error");
     }
 }
 
+- (NSString *)logoutScript {
+    NSString * logoutSource =
+    @"tell application \"Remote Desktop\"\n"
+    "set theComputers to the selection\n"
+    "repeat with x in theComputers\n"
+    "set thescript to \"osascript -e 'tell application \\\"System Events\\\"' -e 'keystroke \\\"q\\\" using {command down, shift down, option down}' -e 'end tell'\"\n"
+    "set thetask to make new send unix command task with properties {name:\"Multiple Login\", script:thescript, showing output:false, user:\"root\"}\n"
+    "execute thetask on x\n"
+    "end repeat\n"
+    "end tell";
+    
+    return logoutSource;
+}
 
+//TODO: parameter passing user
+- (void)logoutOfServer {
+    NSDictionary* errorDict;
+    NSAppleEventDescriptor* returnDescriptor = NULL;
+    NSString * logoutString = [self logoutScript];
+    NSAppleScript * logout = [[NSAppleScript alloc] initWithSource: logoutString];
+    returnDescriptor = [logout executeAndReturnError: &errorDict];
+    if (returnDescriptor != NULL)
+    {
+        // successful execution
+        NSLog(@"logout - done");
+        NSLog(@"%@", [returnDescriptor stringValue]);
+        return;
+    }
+    else {
+        //there is an error!
+        NSLog(@"logout - error");
+    }
+    
+}
 
 @end

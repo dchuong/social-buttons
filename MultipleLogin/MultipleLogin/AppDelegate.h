@@ -12,6 +12,7 @@
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
 -(void) loginToServer;
+-(void) logoutOfServer;
 -(NSString *) loginScript;
 -(NSString *) logoutScript;
 @end
