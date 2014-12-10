@@ -1,0 +1,421 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		49018AC51A38B5B3004C80C3 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 49018AC41A38B5B3004C80C3 /* AppDelegate.m */; };
+		49018AC71A38B5B3004C80C3 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 49018AC61A38B5B3004C80C3 /* main.m */; };
+		49018AC91A38B5B3004C80C3 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 49018AC81A38B5B3004C80C3 /* Images.xcassets */; };
+		49018ACC1A38B5B3004C80C3 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 49018ACA1A38B5B3004C80C3 /* MainMenu.xib */; };
+		49018AD81A38B5B3004C80C3 /* MultipleLoginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 49018AD71A38B5B3004C80C3 /* MultipleLoginTests.m */; };
+		49018AE21A38B5C2004C80C3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49018AE11A38B5C2004C80C3 /* Foundation.framework */; };
+		49018AE41A38B74E004C80C3 /* AppleScriptObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49018AE31A38B74E004C80C3 /* AppleScriptObjC.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		49018AD21A38B5B3004C80C3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49018AB61A38B5B3004C80C3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 49018ABD1A38B5B3004C80C3;
+			remoteInfo = MultipleLogin;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		49018ABE1A38B5B3004C80C3 /* MultipleLogin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MultipleLogin.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		49018AC21A38B5B3004C80C3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		49018AC31A38B5B3004C80C3 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		49018AC41A38B5B3004C80C3 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		49018AC61A38B5B3004C80C3 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		49018AC81A38B5B3004C80C3 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		49018ACB1A38B5B3004C80C3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		49018AD11A38B5B3004C80C3 /* MultipleLoginTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MultipleLoginTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		49018AD61A38B5B3004C80C3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		49018AD71A38B5B3004C80C3 /* MultipleLoginTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MultipleLoginTests.m; sourceTree = "<group>"; };
+		49018AE11A38B5C2004C80C3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		49018AE31A38B74E004C80C3 /* AppleScriptObjC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppleScriptObjC.framework; path = System/Library/Frameworks/AppleScriptObjC.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		49018ABB1A38B5B3004C80C3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				49018AE41A38B74E004C80C3 /* AppleScriptObjC.framework in Frameworks */,
+				49018AE21A38B5C2004C80C3 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		49018ACE1A38B5B3004C80C3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		49018AB51A38B5B3004C80C3 = {
+			isa = PBXGroup;
+			children = (
+				49018AE31A38B74E004C80C3 /* AppleScriptObjC.framework */,
+				49018AE11A38B5C2004C80C3 /* Foundation.framework */,
+				49018AC01A38B5B3004C80C3 /* MultipleLogin */,
+				49018AD41A38B5B3004C80C3 /* MultipleLoginTests */,
+				49018ABF1A38B5B3004C80C3 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		49018ABF1A38B5B3004C80C3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				49018ABE1A38B5B3004C80C3 /* MultipleLogin.app */,
+				49018AD11A38B5B3004C80C3 /* MultipleLoginTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		49018AC01A38B5B3004C80C3 /* MultipleLogin */ = {
+			isa = PBXGroup;
+			children = (
+				49018AC31A38B5B3004C80C3 /* AppDelegate.h */,
+				49018AC41A38B5B3004C80C3 /* AppDelegate.m */,
+				49018AC81A38B5B3004C80C3 /* Images.xcassets */,
+				49018ACA1A38B5B3004C80C3 /* MainMenu.xib */,
+				49018AC11A38B5B3004C80C3 /* Supporting Files */,
+			);
+			path = MultipleLogin;
+			sourceTree = "<group>";
+		};
+		49018AC11A38B5B3004C80C3 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				49018AC21A38B5B3004C80C3 /* Info.plist */,
+				49018AC61A38B5B3004C80C3 /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		49018AD41A38B5B3004C80C3 /* MultipleLoginTests */ = {
+			isa = PBXGroup;
+			children = (
+				49018AD71A38B5B3004C80C3 /* MultipleLoginTests.m */,
+				49018AD51A38B5B3004C80C3 /* Supporting Files */,
+			);
+			path = MultipleLoginTests;
+			sourceTree = "<group>";
+		};
+		49018AD51A38B5B3004C80C3 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				49018AD61A38B5B3004C80C3 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		49018ABD1A38B5B3004C80C3 /* MultipleLogin */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 49018ADB1A38B5B3004C80C3 /* Build configuration list for PBXNativeTarget "MultipleLogin" */;
+			buildPhases = (
+				49018ABA1A38B5B3004C80C3 /* Sources */,
+				49018ABB1A38B5B3004C80C3 /* Frameworks */,
+				49018ABC1A38B5B3004C80C3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MultipleLogin;
+			productName = MultipleLogin;
+			productReference = 49018ABE1A38B5B3004C80C3 /* MultipleLogin.app */;
+			productType = "com.apple.product-type.application";
+		};
+		49018AD01A38B5B3004C80C3 /* MultipleLoginTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 49018ADE1A38B5B3004C80C3 /* Build configuration list for PBXNativeTarget "MultipleLoginTests" */;
+			buildPhases = (
+				49018ACD1A38B5B3004C80C3 /* Sources */,
+				49018ACE1A38B5B3004C80C3 /* Frameworks */,
+				49018ACF1A38B5B3004C80C3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				49018AD31A38B5B3004C80C3 /* PBXTargetDependency */,
+			);
+			name = MultipleLoginTests;
+			productName = MultipleLoginTests;
+			productReference = 49018AD11A38B5B3004C80C3 /* MultipleLoginTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		49018AB61A38B5B3004C80C3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = derrick;
+				TargetAttributes = {
+					49018ABD1A38B5B3004C80C3 = {
+						CreatedOnToolsVersion = 6.1;
+					};
+					49018AD01A38B5B3004C80C3 = {
+						CreatedOnToolsVersion = 6.1;
+						TestTargetID = 49018ABD1A38B5B3004C80C3;
+					};
+				};
+			};
+			buildConfigurationList = 49018AB91A38B5B3004C80C3 /* Build configuration list for PBXProject "MultipleLogin" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 49018AB51A38B5B3004C80C3;
+			productRefGroup = 49018ABF1A38B5B3004C80C3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				49018ABD1A38B5B3004C80C3 /* MultipleLogin */,
+				49018AD01A38B5B3004C80C3 /* MultipleLoginTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		49018ABC1A38B5B3004C80C3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				49018AC91A38B5B3004C80C3 /* Images.xcassets in Resources */,
+				49018ACC1A38B5B3004C80C3 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		49018ACF1A38B5B3004C80C3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		49018ABA1A38B5B3004C80C3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				49018AC71A38B5B3004C80C3 /* main.m in Sources */,
+				49018AC51A38B5B3004C80C3 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		49018ACD1A38B5B3004C80C3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				49018AD81A38B5B3004C80C3 /* MultipleLoginTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		49018AD31A38B5B3004C80C3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 49018ABD1A38B5B3004C80C3 /* MultipleLogin */;
+			targetProxy = 49018AD21A38B5B3004C80C3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		49018ACA1A38B5B3004C80C3 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				49018ACB1A38B5B3004C80C3 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		49018AD91A38B5B3004C80C3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		49018ADA1A38B5B3004C80C3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		49018ADC1A38B5B3004C80C3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = MultipleLogin/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		49018ADD1A38B5B3004C80C3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = MultipleLogin/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		49018ADF1A38B5B3004C80C3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = MultipleLoginTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MultipleLogin.app/Contents/MacOS/MultipleLogin";
+			};
+			name = Debug;
+		};
+		49018AE01A38B5B3004C80C3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = MultipleLoginTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MultipleLogin.app/Contents/MacOS/MultipleLogin";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		49018AB91A38B5B3004C80C3 /* Build configuration list for PBXProject "MultipleLogin" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				49018AD91A38B5B3004C80C3 /* Debug */,
+				49018ADA1A38B5B3004C80C3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		49018ADB1A38B5B3004C80C3 /* Build configuration list for PBXNativeTarget "MultipleLogin" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				49018ADC1A38B5B3004C80C3 /* Debug */,
+				49018ADD1A38B5B3004C80C3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		49018ADE1A38B5B3004C80C3 /* Build configuration list for PBXNativeTarget "MultipleLoginTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				49018ADF1A38B5B3004C80C3 /* Debug */,
+				49018AE01A38B5B3004C80C3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 49018AB61A38B5B3004C80C3 /* Project object */;
+}
