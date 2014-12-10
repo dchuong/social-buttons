@@ -15,6 +15,8 @@
 
 @implementation AppDelegate
 
+// main loop for it to be done
+//TODO: parse data
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     
     [self loginToServer];
@@ -68,6 +70,7 @@
     }
     else {
         //there is an error!
+        //TODO: push to errorList
         NSLog(@"login - error");
     }
 }
@@ -103,6 +106,7 @@
     else {
         //there is an error!
         NSLog(@"logout - error");
+        //TODO: push to errorList
     }
     
 }

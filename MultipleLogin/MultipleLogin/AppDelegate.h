@@ -10,7 +10,9 @@
 #import <Foundation/Foundation.h>
 #import <AppleScriptObjC/AppleScriptObjC.h>
 @interface AppDelegate : NSObject <NSApplicationDelegate>
-
+{
+    NSArray * errorList;
+}
 -(void) loginToServer;
 -(void) logoutOfServer;
 -(NSString *) loginScript;
