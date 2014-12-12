@@ -15,40 +15,41 @@
 
 @implementation AppDelegate
 
-// main loop for it to be done
-//TODO: parse data
+// main loop
+//TODO: timing variable
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     allUser = [[NSMutableDictionary alloc] init];
 
     [self openFile:@"userInfo.txt"];
-    [self printDictionary];
+    //[self printDictionary];
     
-    /*
+    // enumerate each users to login and logout
     for(NSString * key in allUser) {
-        NSLog(@"key=%@", key);
-        NSMutableArray * temp = allUser[key];
-        
-        for (int i = 0; i < [temp count]; i++){
-            UserInformation * tempUser = temp[i];
-            NSLog(@"%@ %@", [tempUser getUsername], [tempUser getPassword]);
+        currentServer = key;
+        NSMutableArray * theUsers = allUser[key];
+        for (int i = 0; i < [theUsers count]; i++) {
+            NSString * tempUsername = [theUsers[i] getUsername];
+            NSString * tempPassword = [theUsers[i] getPassword];
+            
+            [self loginToServer:tempUsername pw:tempPassword];
+            sleep(10);
+            [self logoutOfServer:tempUsername];
+            sleep(10);
+             
         }
     }
-     */
-
-    /*
-    [self loginToServer];
-    sleep(10);
-    [self logoutOfServer];
-     */
     NSLog(@"Program is Done");
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
+    NSLog(@"REPORTS");
+    NSLog(@"%lu", (unsigned long)[loginErrorList count]);
+    NSLog(@"%lu", (unsigned long)[logoutErrorList count]);
 }
 
 -(void) openFile:(NSString *)filename{
-    // desktop path
+    // get the desktop path
     NSArray * paths = NSSearchPathForDirectoriesInDomains (NSDesktopDirectory, NSUserDomainMask, YES);
     NSString * desktopPath = [paths objectAtIndex:0];
     // open up the file
@@ -70,10 +71,12 @@
         NSArray * components = [line componentsSeparatedByString:@"/"];
         UserInformation * user = [[UserInformation alloc] initUser:components[1] password:components[2]];
         
+        // if it is the current server keep appending
         if ([checkNewServer isEqualToString:components[0]]) {
             [oneServerArray addObject:user];
         }
         else {
+        // if it is a new server create a new array
             oneServerArray = [[NSMutableArray alloc] init];
             [oneServerArray addObject:user];
         }
@@ -84,26 +87,28 @@
 }
 
 
-//login applescript for unix ARD
-//TODO: Parameter passing for user and password
-- (NSString *)loginScript {
-    NSString * loginSource =
+//login using applescript for unix ARD
+-(NSString *) loginScript:(NSString *)user pw:(NSString *)password; {
+    NSString * loginSource = [NSString stringWithFormat:
     @"tell application \"Remote Desktop\"\n"
     "set theComputers to the selection\n"
     "repeat with x in theComputers\n"
-    "set thescript to \"osascript -e 'tell application \\\"System Events\\\"' -e 'keystroke \\\"user123\\\"' -e 'keystroke tab' -e 'delay 0.5' -e 'keystroke \\\"demo@123\\\"' -e 'delay 0.5' -e 'keystroke return' -e 'end tell'\"\n"
+    "set thescript to \"osascript -e 'tell application \\\"System Events\\\"' -e 'keystroke \\\"%@\\\"' -e 'keystroke tab' -e 'delay 0.5' -e 'keystroke \\\"%@\\\"' -e 'delay 0.5' -e 'keystroke return' -e 'end tell'\"\n"
     "set thetask to make new send unix command task with properties {name:\"Multiple Login\", script:thescript, showing output:false, user:\"root\"}\n"
     "execute thetask on x\n"
     "end repeat\n"
-    "end tell";
+    "end tell",user, password];
     
     return loginSource;
 }
 
-- (void) loginToServer {
+// send the command to the ard
+//TODO: merge to one function to send commands
+-(void) loginToServer:(NSString *)user pw:(NSString *)password {
     NSDictionary* errorDict;
     NSAppleEventDescriptor* returnDescriptor = NULL;
-    NSString * loginString = [self loginScript];
+    NSLog(@"%@ %@",user, password);
+    NSString * loginString = [self loginScript:user pw:password];
     
     /*
     NSString * path = @"/Users/derrick/Desktop/MultipleLogin/LoginScript.scpt";
@@ -121,59 +126,62 @@
     {
         // successful execution
         NSLog(@"login - done");
-        NSLog(@"%@", [returnDescriptor stringValue]);
+        //NSLog(@"%@", [returnDescriptor stringValue]);
         return;
     }
     else {
-        //there is an error!
+        //there is an error! - append to the array
         //TODO: push to errorList
         NSLog(@"login - error");
+        [loginErrorList addObject:[NSString stringWithFormat:@"%@ didn't logout at %@", user, currentServer]];
+        
     }
 }
 
-- (NSString *)logoutScript {
-    NSString * logoutSource =
+- (NSString *)logoutScript:(NSString *)user{
+    NSString * logoutSource = [NSString stringWithFormat:
     @"tell application \"Remote Desktop\"\n"
     "set theComputers to the selection\n"
     "repeat with x in theComputers\n"
     "set thescript to \"osascript -e 'tell application \\\"System Events\\\"' -e 'keystroke \\\"q\\\" using {command down, shift down, option down}' -e 'end tell'\"\n"
-    "set thetask to make new send unix command task with properties {name:\"Multiple Login\", script:thescript, showing output:false, user:\"root\"}\n"
+    "set thetask to make new send unix command task with properties {name:\"Multiple Login\", script:thescript, showing output:false, user:\"%@\"}\n"
     "execute thetask on x\n"
     "end repeat\n"
-    "end tell";
+    "end tell", user];
     
     return logoutSource;
 }
 
-//TODO: parameter passing user
-- (void)logoutOfServer {
+// logout of the user in a server
+- (void)logoutOfServer:(NSString *)user {
     NSDictionary* errorDict;
     NSAppleEventDescriptor* returnDescriptor = NULL;
-    NSString * logoutString = [self logoutScript];
+    NSString * logoutString = [self logoutScript:user];
     NSAppleScript * logout = [[NSAppleScript alloc] initWithSource: logoutString];
     returnDescriptor = [logout executeAndReturnError: &errorDict];
     if (returnDescriptor != NULL)
     {
         // successful execution
         NSLog(@"logout - done");
-        NSLog(@"%@", [returnDescriptor stringValue]);
+        //NSLog(@"%@", [returnDescriptor stringValue]);
         return;
     }
     else {
         //there is an error!
         NSLog(@"logout - error");
+        [logoutErrorList addObject:[NSString stringWithFormat:@"%@ didn't logout at %@", user, currentServer]];
         //TODO: push to errorList
+        
     }
     
 }
 
+// dictionary holds the server + user information
 - (void) printDictionary {
     NSLog(@"checking work");
     for(NSString * key in allUser) {
-        
         NSLog(@"key=%@", key);
         NSMutableArray * temp = allUser[key];
-        
         for (int i = 0; i < [temp count]; i++){
             UserInformation * tempUser = temp[i];
             NSLog(@"%@ %@", [tempUser getUsername], [tempUser getPassword]);

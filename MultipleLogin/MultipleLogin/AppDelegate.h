@@ -12,14 +12,17 @@
 #import "UserInformation.h"
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 {
-    NSMutableArray * errorList;
+    NSString * currentServer;
+    NSMutableArray * loginErrorList;
+    NSMutableArray * logoutErrorList;
+    NSMutableArray * loginDone;
     NSMutableDictionary * allUser;
 }
 -(void) openFile:(NSString *)filename;
--(void) loginToServer;
--(void) logoutOfServer;
+-(void) loginToServer:(NSString *)user pw:(NSString *)password;
+-(void) logoutOfServer:(NSString *)user;
 -(void) printDictionary;
--(NSString *) loginScript;
--(NSString *) logoutScript;
+-(NSString *) loginScript:(NSString *)user pw:(NSString *)password;
+-(NSString *) logoutScript:(NSString *)user;
 @end
 
