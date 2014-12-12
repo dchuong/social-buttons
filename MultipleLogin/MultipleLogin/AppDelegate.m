@@ -27,6 +27,7 @@
     for(NSString * key in allUser) {
         currentServer = key;
         NSMutableArray * theUsers = allUser[key];
+        // go through the array of user for that server
         for (int i = 0; i < [theUsers count]; i++) {
             NSString * tempUsername = [theUsers[i] getUsername];
             NSString * tempPassword = [theUsers[i] getPassword];
@@ -39,13 +40,14 @@
         }
     }
     NSLog(@"Program is Done");
+    NSLog(@"REPORTS");
+    NSLog(@"Number of Login Errors: %lu", (unsigned long)[loginErrorList count]);
+    NSLog(@"Number of Logout Errors: %lu", (unsigned long)[logoutErrorList count]);
+
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
-    NSLog(@"REPORTS");
-    NSLog(@"%lu", (unsigned long)[loginErrorList count]);
-    NSLog(@"%lu", (unsigned long)[logoutErrorList count]);
 }
 
 -(void) openFile:(NSString *)filename{
@@ -124,6 +126,7 @@
     returnDescriptor = [login executeAndReturnError: &errorDict];
     if (returnDescriptor != NULL)
     {
+        //TODO: push into completed login array
         // successful execution
         NSLog(@"login - done");
         //NSLog(@"%@", [returnDescriptor stringValue]);
@@ -163,6 +166,7 @@
     {
         // successful execution
         NSLog(@"logout - done");
+        //TODO: push into completed login array
         //NSLog(@"%@", [returnDescriptor stringValue]);
         return;
     }
@@ -170,7 +174,6 @@
         //there is an error!
         NSLog(@"logout - error");
         [logoutErrorList addObject:[NSString stringWithFormat:@"%@ didn't logout at %@", user, currentServer]];
-        //TODO: push to errorList
         
     }
     

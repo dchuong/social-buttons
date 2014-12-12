@@ -16,6 +16,7 @@
     NSMutableArray * loginErrorList;
     NSMutableArray * logoutErrorList;
     NSMutableArray * loginDone;
+    NSMutableArray * logoutDone;
     NSMutableDictionary * allUser;
 }
 -(void) openFile:(NSString *)filename;
