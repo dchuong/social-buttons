@@ -9,12 +9,16 @@
 #import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
 #import <AppleScriptObjC/AppleScriptObjC.h>
+#import "UserInformation.h"
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 {
-    NSArray * errorList;
+    NSMutableArray * errorList;
+    NSMutableDictionary * allUser;
 }
+-(void) openFile:(NSString *)filename;
 -(void) loginToServer;
 -(void) logoutOfServer;
+-(void) printDictionary;
 -(NSString *) loginScript;
 -(NSString *) logoutScript;
 @end

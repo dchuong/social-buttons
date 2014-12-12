@@ -18,16 +18,72 @@
 // main loop for it to be done
 //TODO: parse data
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    allUser = [[NSMutableDictionary alloc] init];
+
+    [self openFile:@"userInfo.txt"];
+    [self printDictionary];
     
+    /*
+    for(NSString * key in allUser) {
+        NSLog(@"key=%@", key);
+        NSMutableArray * temp = allUser[key];
+        
+        for (int i = 0; i < [temp count]; i++){
+            UserInformation * tempUser = temp[i];
+            NSLog(@"%@ %@", [tempUser getUsername], [tempUser getPassword]);
+        }
+    }
+     */
+
+    /*
     [self loginToServer];
     sleep(10);
     [self logoutOfServer];
+     */
     NSLog(@"Program is Done");
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
 }
+
+-(void) openFile:(NSString *)filename{
+    // desktop path
+    NSArray * paths = NSSearchPathForDirectoriesInDomains (NSDesktopDirectory, NSUserDomainMask, YES);
+    NSString * desktopPath = [paths objectAtIndex:0];
+    // open up the file
+    NSString * filePath = [NSString stringWithFormat:@"%@/%@", desktopPath, filename];
+    NSString * text = [NSString stringWithContentsOfFile:filePath encoding:NSASCIIStringEncoding error:NULL];
+    
+    // seperate by new lines
+    NSArray * textByLines = [text componentsSeparatedByString:@"\n"];
+    if ([textByLines count] == 0) {
+        NSLog(@"User information text file is empty");
+        return;
+    }
+    //init the hashmap
+    NSString * checkNewServer = nil;
+    NSMutableArray * oneServerArray = [[NSMutableArray alloc] init];
+    
+    //add an array of user information into the key of the hashmap
+    for (NSString * line in textByLines) {
+        NSArray * components = [line componentsSeparatedByString:@"/"];
+        UserInformation * user = [[UserInformation alloc] initUser:components[1] password:components[2]];
+        
+        if ([checkNewServer isEqualToString:components[0]]) {
+            [oneServerArray addObject:user];
+        }
+        else {
+            oneServerArray = [[NSMutableArray alloc] init];
+            [oneServerArray addObject:user];
+        }
+        
+        checkNewServer = components[0];
+        [allUser setValue:oneServerArray forKey:components[0]];
+    }
+}
+
+
 //login applescript for unix ARD
 //TODO: Parameter passing for user and password
 - (NSString *)loginScript {
@@ -111,4 +167,17 @@
     
 }
 
+- (void) printDictionary {
+    NSLog(@"checking work");
+    for(NSString * key in allUser) {
+        
+        NSLog(@"key=%@", key);
+        NSMutableArray * temp = allUser[key];
+        
+        for (int i = 0; i < [temp count]; i++){
+            UserInformation * tempUser = temp[i];
+            NSLog(@"%@ %@", [tempUser getUsername], [tempUser getPassword]);
+        }
+    }
+}
 @end
