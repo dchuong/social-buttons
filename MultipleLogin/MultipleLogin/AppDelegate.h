@@ -20,10 +20,14 @@
     NSMutableDictionary * allUser;
 }
 -(void) openFile:(NSString *)filename;
+-(NSString *) newComputerScript:(NSString *)selectedServer;
+-(void) newComputerList:(NSString *)selectedServer;
+
 
 -(void) loginToServer:(NSString *)user pw:(NSString *)password;
 -(BOOL) sendTimerToServer;
 -(void) logoutOfServer:(NSString *)user;
+
 
 -(NSString *) loginScript:(NSString *)user pw:(NSString *)password;
 -(NSString *) timerScript;

@@ -16,7 +16,7 @@
 @implementation AppDelegate
 
 // main loop
-//TODO: timing variable
+//TODO: need to functionalize into one function
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     allUser = [[NSMutableDictionary alloc] init];
 
@@ -24,16 +24,20 @@
     //[self printDictionary];
     
     // enumerate each users to login and logout
-    
+    // allUser is a dictionary ( hashmap in C++ )
     for(NSString * key in allUser) {
         currentServer = key;
+        [self newComputerList:currentServer];
+        
         NSMutableArray * theUsers = allUser[key];
+        // make a new server list with a single computer
         // go through the array of user for that server
         for (int i = 0; i < [theUsers count]; i++) {
             NSString * tempUsername = [theUsers[i] getUsername];
             NSString * tempPassword = [theUsers[i] getPassword];
             
             [self loginToServer:tempUsername pw:tempPassword];
+            sleep(10);
             // start the timer
             /*
             NSDate * startDate = [NSDate date];
@@ -48,6 +52,8 @@
              
         }
     }
+    
+    
     NSLog(@"Program is Done");
     NSLog(@"REPORTS");
     NSLog(@"Number of Login Errors: %lu", (unsigned long)[loginErrorList count]);
@@ -98,18 +104,59 @@
 }
 
 
+//create individual server list with that computer in ARD
+// The list with all the computers have to be named All Computers
+-(NSString *) newComputerScript:(NSString *)selectedServer {
+    NSString * createComputer = [NSString stringWithFormat:
+    @"tell application \"Remote Desktop\"\n"
+    "set computerList to (every computer of computer list \"All Computers\")\n"
+    "repeat with comp in computerList\n"
+    "set serverName to name of comp\n"
+    "if ((serverName as string) is equal to \"%@\") then\n" // first %@
+    "make new computer list with properties {name:serverName}\n"
+    "add comp to computer list \"%@\"\n" // 2nd %@
+    "end if\n"
+    "end repeat\n"
+    "end tell", selectedServer, selectedServer ];
+    return createComputer;
+    
+}
+
+-(void)newComputerList:(NSString *)selectedServer {
+    NSDictionary* errorDict;
+    NSAppleEventDescriptor* returnDescriptor = NULL;
+    NSString * createServerString = [self newComputerScript:selectedServer];
+    
+    NSAppleScript * createServer = [[NSAppleScript alloc] initWithSource: createServerString];
+    
+    //execute and the return descriptor returns a string or a null
+    returnDescriptor = [createServer executeAndReturnError: &errorDict];
+    if (returnDescriptor != NULL)
+    {
+        //TODO: push into completed login array
+        // successful execution
+        NSLog(@"new server list - done");
+        return;
+    }
+    else {
+        //there is an error! - append to the array
+        //TODO: push to errorList
+        NSLog(@"new server list - error");
+    }
+}
+
+
 //login using applescript for unix ARD
 -(NSString *) loginScript:(NSString *)user pw:(NSString *)password; {
     NSString * loginSource = [NSString stringWithFormat:
     @"tell application \"Remote Desktop\"\n"
-    "set theComputers to the selection\n"
+    "set theComputers to first computer of computer list \"%@\"\n" // first %@
     "repeat with x in theComputers\n"
-    "set thescript to \"osascript -e 'tell application \\\"System Events\\\"' -e 'keystroke \\\"%@\\\"' -e 'keystroke tab' -e 'delay 0.5' -e 'keystroke \\\"%@\\\"' -e 'delay 0.5' -e 'keystroke return' -e 'end tell'\"\n"
-    "set thetask to make new send unix command task with properties {name:\"Multiple Login\", script:thescript, showing output:false, user:\"root\"}\n"
+    "set thescript to \"osascript -e 'tell application \\\"System Events\\\"' -e 'keystroke \\\"%@\\\"' -e 'keystroke tab' -e 'delay 0.5' -e 'keystroke \\\"%@\\\"' -e 'delay 0.5' -e 'keystroke return' -e 'end tell'\"\n" // 2nd , 3rd %@
+    "set thetask to make new send unix command task with properties {name:\"Login\", script:thescript, showing output:false, user:\"root\"}\n"
     "execute thetask on x\n"
     "end repeat\n"
-    "end tell",user, password];
-    
+    "end tell", currentServer ,user, password];
     return loginSource;
 }
 
@@ -121,13 +168,11 @@
     NSLog(@"%@ %@",user, password);
     NSString * loginString = [self loginScript:user pw:password];
     
-    /*
+    /* for debugging
     NSString * path = @"/Users/derrick/Desktop/MultipleLogin/LoginScript.scpt";
     [loginString writeToFile:path atomically:YES encoding:NSUnicodeStringEncoding error:nil];
-    NSAppleScript * loginScript = [[NSAppleScript alloc]
-                                   initWithContentsOfURL:[NSURL fileURLWithPath:path]
-                                   error:nil];
      */
+    
     //create the login applescript for it to execute
     NSAppleScript * login = [[NSAppleScript alloc] initWithSource: loginString];
     
@@ -149,6 +194,8 @@
     }
 }
 
+
+//TODO: Still need to be fix
 - (NSString *) timerScript {
     NSString * timerSource = [NSString stringWithFormat:
                                @"tell application \"Remote Desktop\"\n"
@@ -188,13 +235,13 @@
 - (NSString *)logoutScript:(NSString *)user{
     NSString * logoutSource = [NSString stringWithFormat:
     @"tell application \"Remote Desktop\"\n"
-    "set theComputers to the selection\n"
+    "set theComputers to first computer of computer list \"%@\"\n" // first %@
     "repeat with x in theComputers\n"
     "set thescript to \"osascript -e 'tell application \\\"System Events\\\"' -e 'keystroke \\\"q\\\" using {command down, shift down, option down}' -e 'end tell'\"\n"
-    "set thetask to make new send unix command task with properties {name:\"Multiple Login\", script:thescript, showing output:false, user:\"%@\"}\n"
+    "set thetask to make new send unix command task with properties {name:\"Logout\", script:thescript, showing output:false, user:\"%@\"}\n" // 2nd %@
     "execute thetask on x\n"
     "end repeat\n"
-    "end tell", user];
+    "end tell", currentServer,user];
     
     return logoutSource;
 }
