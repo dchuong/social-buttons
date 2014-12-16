@@ -24,6 +24,7 @@
     //[self printDictionary];
     
     // enumerate each users to login and logout
+    
     for(NSString * key in allUser) {
         currentServer = key;
         NSMutableArray * theUsers = allUser[key];
@@ -33,7 +34,15 @@
             NSString * tempPassword = [theUsers[i] getPassword];
             
             [self loginToServer:tempUsername pw:tempPassword];
-            sleep(10);
+            // start the timer
+            /*
+            NSDate * startDate = [NSDate date];
+            if ([self sendTimerToServer]) {
+                NSDate * finishDate = [NSDate date];
+                NSTimeInterval executionTime = [finishDate timeIntervalSinceDate:startDate];
+                NSLog(@"Execution Time: %f", executionTime);
+            }
+             */
             [self logoutOfServer:tempUsername];
             sleep(10);
              
@@ -129,7 +138,6 @@
         //TODO: push into completed login array
         // successful execution
         NSLog(@"login - done");
-        //NSLog(@"%@", [returnDescriptor stringValue]);
         return;
     }
     else {
@@ -139,6 +147,42 @@
         [loginErrorList addObject:[NSString stringWithFormat:@"%@ didn't logout at %@", user, currentServer]];
         
     }
+}
+
+- (NSString *) timerScript {
+    NSString * timerSource = [NSString stringWithFormat:
+                               @"tell application \"Remote Desktop\"\n"
+                               "set theComputers to the selection\n"
+                               "repeat with x in theComputers\n"
+                               "set thescript to \"osascript -e 'global processExists' -e 'set processExists to false' -e 'repeat while processExists = false' -e 'tell application \\\"System Events\\\"' -e 'set processExists to exists process \\\"Finder\\\"' -e 'end tell' -e 'end repeat' -e 'return processExists'\"\n"
+                               "set thetask to make new send unix command task with properties {name:\"Timer\", script:thescript, showing output:false, user:\"root\"}\n"
+                               "execute thetask on x\n"
+                               "end repeat\n"
+                               "end tell\n"
+                               "return true"];
+    
+    return timerSource;
+}
+
+- (BOOL)sendTimerToServer {
+    NSDictionary* errorDict;
+    NSAppleEventDescriptor* returnDescriptor = NULL;
+    NSString * timerString = [self timerScript];
+    NSAppleScript * timer = [[NSAppleScript alloc] initWithSource: timerString];
+    returnDescriptor = [timer executeAndReturnError: &errorDict];
+    if (returnDescriptor != NULL)
+    {
+        // successful execution
+        if([[returnDescriptor stringValue] isEqualToString:@"true"]) {
+            NSLog(@"mytimer work");
+            return true;
+        }
+    }
+    else {
+        //there is an error!
+        NSLog(@"mytimer suk");
+    }
+    return false;
 }
 
 - (NSString *)logoutScript:(NSString *)user{
@@ -167,7 +211,6 @@
         // successful execution
         NSLog(@"logout - done");
         //TODO: push into completed login array
-        //NSLog(@"%@", [returnDescriptor stringValue]);
         return;
     }
     else {

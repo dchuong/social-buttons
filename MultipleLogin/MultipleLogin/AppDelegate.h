@@ -20,10 +20,19 @@
     NSMutableDictionary * allUser;
 }
 -(void) openFile:(NSString *)filename;
+
 -(void) loginToServer:(NSString *)user pw:(NSString *)password;
+-(BOOL) sendTimerToServer;
 -(void) logoutOfServer:(NSString *)user;
--(void) printDictionary;
+
 -(NSString *) loginScript:(NSString *)user pw:(NSString *)password;
+-(NSString *) timerScript;
 -(NSString *) logoutScript:(NSString *)user;
+
+-(void) printDictionary;
+
+
+
+
 @end
 
