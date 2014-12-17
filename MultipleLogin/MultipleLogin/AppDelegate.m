@@ -16,8 +16,8 @@
 @implementation AppDelegate
 
 // main loop
-//TODO: need to functionalize sending the commands to ARD into one function
 //TODO: timer
+//TODO: need to functionalize sending the commands to ARD into one function
 //TODO: clean derrickcomplist even if it crash or stop
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     allUser = [[NSMutableDictionary alloc] init];
@@ -44,15 +44,16 @@
         // go through the array of user for that server
         for (int i = 0; i < [theUsers count]; i++) {
             NSString * tempUsername = [theUsers[i] getUsername];
-            [_statusLabel setStringValue:[NSString stringWithFormat:@"It is currently on server: %@ %@", key, tempUsername]];
             NSString * tempPassword = [theUsers[i] getPassword];
+            [_statusLabel setStringValue:[NSString stringWithFormat:@"It is currently on server: %@ %@", key, tempUsername]];
             
             [self loginToServer:tempUsername pw:tempPassword];
-            sleep(130);
+            sleep(130); // change this to the slowest server time since it is not quite working
             [self logoutOfServer:tempUsername];
             sleep(10);
         }
         [self removeComputer:currentServer];
+        sleep(2);
     }
     
     [self writeResultFile];
@@ -181,10 +182,8 @@
     returnDescriptor = [createServer executeAndReturnError: &errorDict];
     if (returnDescriptor != NULL)
     {
-        //TODO: push into completed login array
         // successful execution
         //NSLog(@"new server list - done");
-        
         return;
     }
     else {
