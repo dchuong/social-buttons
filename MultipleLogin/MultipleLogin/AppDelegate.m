@@ -17,25 +17,31 @@
 
 // main loop
 //TODO: need to functionalize sending the commands to ARD into one function
+//TODO: timer
+//TODO: clean derrickcomplist even if it crash or stop
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     allUser = [[NSMutableDictionary alloc] init];
     loginErrorList = [[NSMutableArray alloc] init];
     logoutErrorList = [[NSMutableArray alloc] init];
-    loginDone = [[NSMutableArray alloc] init];
+    resultLoginDict = [[NSMutableDictionary alloc] init];
+    
     myComputerList = @"DerrickCompList";
     [self openFile:@"userInfo.txt"];
     //[self printDictionary];
     
     // enumerate each users to login and logout
     // allUser is a dictionary ( hashmap in C++ )
-    
+   
     NSLog(@"Starting Program");
+
+    [_statusLabel setStringValue:@"Program is running..."];
     for(NSString * key in allUser) {
         currentServer = key;
+                // make a new server list with a single computer
         [self newComputerList:currentServer];
         
+        [_statusLabel setStringValue:[NSString stringWithFormat:@"It is currently on server: %@", key]];
         NSMutableArray * theUsers = allUser[key];
-        // make a new server list with a single computer
         // go through the array of user for that server
         for (int i = 0; i < [theUsers count]; i++) {
             NSString * tempUsername = [theUsers[i] getUsername];
@@ -49,8 +55,11 @@
         [self removeComputer:currentServer];
     }
     
+    [self writeResultFile];
+    [_statusLabel setStringValue:[NSString stringWithFormat:@"Program is Done"]];
+
     NSLog(@"Program is Done");
-    NSLog(@"REPORTS");
+    NSLog(@"ERRORS REPORT");
     NSLog(@"Number of Login Errors: %lu", (unsigned long)[loginErrorList count]);
     NSLog(@"Number of Logout Errors: %lu", (unsigned long)[logoutErrorList count]);
 
@@ -90,11 +99,50 @@
         else {
         // if key doesn't exists create a new array for that key
             oneServerArray = [[NSMutableArray alloc] init];
+            NSMutableArray * resultArray = [[NSMutableArray alloc] init];
+            [resultLoginDict setValue:resultArray forKey:components[0]];
             [oneServerArray addObject:user];
             [allUser setValue:oneServerArray forKey:components[0]];
         }
         
     }
+}
+
+//write the result to a text file
+- (void)writeResultFile {
+    NSArray * paths = NSSearchPathForDirectoriesInDomains (NSDesktopDirectory, NSUserDomainMask, YES);
+    NSString * desktopPath = [paths objectAtIndex:0];
+    NSDate * currentDate = [NSDate date];
+    NSCalendar* calendar = [NSCalendar currentCalendar];
+    NSDateComponents* components = [calendar components:NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:currentDate];
+    NSString * outFilePath = [NSString stringWithFormat:@"%@/result (%ld-%ld-%ld).txt", desktopPath, (long)[components month], (long)[components day], (long)[components year]];
+    NSString * outputString = @"";
+   
+    // go through the success
+    for(NSString * key in resultLoginDict) {
+        outputString = [NSString stringWithFormat:@"%@%@:\n",outputString,key];
+        NSMutableArray * temp = allUser[key];
+        for (int i = 0; i < [temp count]; i++){
+            UserInformation * tempUser = temp[i];
+            outputString = [NSString stringWithFormat:@"%@%@\n", outputString, [tempUser getUsername]];
+        }
+        [outputString stringByAppendingString:@"\n\n"];
+    }
+    
+    // error report
+    [outputString stringByAppendingString:@"ERRORS REPORT\n"];
+    outputString = [NSString stringWithFormat:@"%@Number of Login Errors: %lu\n", outputString,(unsigned long)[loginErrorList count]];
+    outputString = [NSString stringWithFormat:@"%@Number of Logout Errors: %lu\n\n", outputString,(unsigned long)[logoutErrorList count]];
+    
+     // go through the errors
+    for(int i = 0; i < [loginErrorList count]; i++){
+        outputString = [NSString stringWithFormat:@"%@%@\n", outputString, loginErrorList[i]];
+    }
+    for(int i = 0; i < [logoutErrorList count]; i++){
+        outputString = [NSString stringWithFormat:@"%@%@\n", outputString, logoutErrorList[i]];
+    }
+    [outputString writeToFile:outFilePath atomically:YES encoding:NSUnicodeStringEncoding error:nil];
+
 }
 
 
@@ -136,6 +184,7 @@
         //TODO: push into completed login array
         // successful execution
         //NSLog(@"new server list - done");
+        
         return;
     }
     else {
@@ -211,9 +260,11 @@
     returnDescriptor = [login executeAndReturnError: &errorDict];
     if (returnDescriptor != NULL)
     {
-        //TODO: push into completed login array
+        
         // successful execution
         NSLog(@"login - done");
+        UserInformation * userInfo = [[UserInformation alloc] initUser:user password:password];
+        [resultLoginDict[currentServer] addObject:userInfo];
         return;
     }
     else {

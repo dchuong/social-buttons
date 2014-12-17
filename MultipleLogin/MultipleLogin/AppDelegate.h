@@ -16,12 +16,13 @@
     NSString * myComputerList;
     NSMutableArray * loginErrorList;
     NSMutableArray * logoutErrorList;
-    NSMutableArray * loginDone;
+    NSMutableDictionary * resultLoginDict;
     NSMutableArray * logoutDone;
     NSMutableDictionary * allUser;
     
 }
 -(void) openFile:(NSString *)filename;
+-(void) writeResultFile;
 -(NSString *) newComputerScript:(NSString *)selectedServer;
 -(void) newComputerList:(NSString *)selectedServer;
 -(NSString *) removeComputerScript:(NSString *)selectedServer;
@@ -39,6 +40,7 @@
 -(void) printDictionary;
 
 
+@property (weak) IBOutlet NSTextField *statusLabel;
 
 
 @end
