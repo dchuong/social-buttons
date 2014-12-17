@@ -16,20 +16,20 @@
 @implementation AppDelegate
 
 // main loop
-//TODO: need to functionalize into one function
+//TODO: need to functionalize sending the commands to ARD into one function
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     allUser = [[NSMutableDictionary alloc] init];
     loginErrorList = [[NSMutableArray alloc] init];
     logoutErrorList = [[NSMutableArray alloc] init];
     loginDone = [[NSMutableArray alloc] init];
-
+    myComputerList = @"DerrickCompList";
     [self openFile:@"userInfo.txt"];
     //[self printDictionary];
     
     // enumerate each users to login and logout
     // allUser is a dictionary ( hashmap in C++ )
     
-    NSLog(@"starting Programing");
+    NSLog(@"Starting Program");
     for(NSString * key in allUser) {
         currentServer = key;
         [self newComputerList:currentServer];
@@ -45,10 +45,9 @@
             sleep(15);
             [self logoutOfServer:tempUsername];
             sleep(10);
-             
         }
+        [self removeComputer:currentServer];
     }
-    
     
     NSLog(@"Program is Done");
     NSLog(@"REPORTS");
@@ -107,12 +106,18 @@
     "set computerList to (every computer of computer list \"All Computers\")\n"
     "repeat with comp in computerList\n"
     "set serverName to name of comp\n"
-    "if ((serverName as string) is equal to \"%@\") then\n" // first %@
-    "make new computer list with properties {name:serverName}\n"
-    "add comp to computer list \"%@\"\n" // 2nd %@
+    
+    "set derrickCompList to \"%@\"\n" //first %@
+                                 "if ((serverName as string) is equal to \"%@\") then\n" // 2nd %@
+                                 "if (not (exists computer list derrickCompList)) then\n"
+                                "make new computer list with properties {name:derrickCompList}\n"
+                                 
+                                 "end if\n"
+                                 
+    "add comp to computer list derrickCompList\n" //
     "end if\n"
     "end repeat\n"
-    "end tell", selectedServer, selectedServer ];
+    "end tell", myComputerList, selectedServer];
     return createComputer;
     
 }
@@ -140,6 +145,38 @@
     }
 }
 
+//remove a computer from a computer list in ARD
+- (NSString *) removeComputerScript:(NSString *)selectedServer {
+    NSString * removeSource = [NSString stringWithFormat:
+                               @"tell application \"Remote Desktop\"\n"
+                               "remove computer \"%@\" from computer list \"%@\"\n"
+                               "end tell", selectedServer, myComputerList];
+    return removeSource;
+}
+
+-(void) removeComputer:(NSString *)selectedServer {
+    NSDictionary* errorDict;
+    NSAppleEventDescriptor* returnDescriptor = NULL;
+    NSString * removeString = [self removeComputerScript:selectedServer];
+    
+    NSString * path = @"/Users/derrick/Desktop/MultipleLogin/removeScript.scpt";
+    [removeString writeToFile:path atomically:YES encoding:NSUnicodeStringEncoding error:nil];
+    //create the login applescript for it to execute
+    NSAppleScript * remove = [[NSAppleScript alloc] initWithSource: removeString];
+    
+    //execute and the return descriptor returns a string or a null
+    returnDescriptor = [remove executeAndReturnError: &errorDict];
+    if (returnDescriptor != NULL)
+    {
+        NSLog(@"remove - done");
+        return;
+    }
+    else {
+        NSLog(@"remove - error");
+        
+    }
+}
+
 
 //login using applescript for unix ARD
 -(NSString *) loginScript:(NSString *)user pw:(NSString *)password; {
@@ -151,12 +188,11 @@
     "set thetask to make new send unix command task with properties {name:\"Login\", script:thescript, showing output:false, user:\"root\"}\n"
     "execute thetask on x\n"
     "end repeat\n"
-    "end tell", currentServer ,user, password];
+    "end tell", myComputerList ,user, password];
     return loginSource;
 }
 
 // send the command to the ard
-//TODO: merge to one function to send commands
 -(void) loginToServer:(NSString *)user pw:(NSString *)password {
     NSDictionary* errorDict;
     NSAppleEventDescriptor* returnDescriptor = NULL;
@@ -237,12 +273,12 @@
     "set thetask to make new send unix command task with properties {name:\"Logout\", script:thescript, showing output:false, user:\"%@\"}\n" // 2nd %@
     "execute thetask on x\n"
     "end repeat\n"
-    "end tell", currentServer,user];
+    "end tell", myComputerList,user];
     
     return logoutSource;
 }
 
-// logout of the user in a server
+// Log out without showing a confirmation dialog
 - (void)logoutOfServer:(NSString *)user {
     NSDictionary* errorDict;
     NSAppleEventDescriptor* returnDescriptor = NULL;

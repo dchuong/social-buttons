@@ -13,16 +13,19 @@
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 {
     NSString * currentServer;
+    NSString * myComputerList;
     NSMutableArray * loginErrorList;
     NSMutableArray * logoutErrorList;
     NSMutableArray * loginDone;
     NSMutableArray * logoutDone;
     NSMutableDictionary * allUser;
+    
 }
 -(void) openFile:(NSString *)filename;
 -(NSString *) newComputerScript:(NSString *)selectedServer;
 -(void) newComputerList:(NSString *)selectedServer;
-
+-(NSString *) removeComputerScript:(NSString *)selectedServer;
+-(void)removeComputer:(NSString *)selectedServer;
 
 -(void) loginToServer:(NSString *)user pw:(NSString *)password;
 -(BOOL) sendTimerToServer;
