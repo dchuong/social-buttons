@@ -19,12 +19,17 @@
 //TODO: need to functionalize into one function
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     allUser = [[NSMutableDictionary alloc] init];
+    loginErrorList = [[NSMutableArray alloc] init];
+    logoutErrorList = [[NSMutableArray alloc] init];
+    loginDone = [[NSMutableArray alloc] init];
 
     [self openFile:@"userInfo.txt"];
     //[self printDictionary];
     
     // enumerate each users to login and logout
     // allUser is a dictionary ( hashmap in C++ )
+    
+    NSLog(@"starting Programing");
     for(NSString * key in allUser) {
         currentServer = key;
         [self newComputerList:currentServer];
@@ -37,16 +42,7 @@
             NSString * tempPassword = [theUsers[i] getPassword];
             
             [self loginToServer:tempUsername pw:tempPassword];
-            sleep(10);
-            // start the timer
-            /*
-            NSDate * startDate = [NSDate date];
-            if ([self sendTimerToServer]) {
-                NSDate * finishDate = [NSDate date];
-                NSTimeInterval executionTime = [finishDate timeIntervalSinceDate:startDate];
-                NSLog(@"Execution Time: %f", executionTime);
-            }
-             */
+            sleep(15);
             [self logoutOfServer:tempUsername];
             sleep(10);
              
@@ -80,26 +76,25 @@
         return;
     }
     //init the hashmap
-    NSString * checkNewServer = nil;
     NSMutableArray * oneServerArray = [[NSMutableArray alloc] init];
     
     //add an array of user information into the key of the hashmap
+    //TODO: need to fix dictionary - check if there is an array already in the dictionary
     for (NSString * line in textByLines) {
         NSArray * components = [line componentsSeparatedByString:@"/"];
         UserInformation * user = [[UserInformation alloc] initUser:components[1] password:components[2]];
         
-        // if it is the current server keep appending
-        if ([checkNewServer isEqualToString:components[0]]) {
-            [oneServerArray addObject:user];
+        // if key exists keep expanding
+        if ([allUser objectForKey:components[0]]) {
+            [allUser[components[0]] addObject:user];
         }
         else {
-        // if it is a new server create a new array
+        // if key doesn't exists create a new array for that key
             oneServerArray = [[NSMutableArray alloc] init];
             [oneServerArray addObject:user];
+            [allUser setValue:oneServerArray forKey:components[0]];
         }
         
-        checkNewServer = components[0];
-        [allUser setValue:oneServerArray forKey:components[0]];
     }
 }
 
@@ -135,7 +130,7 @@
     {
         //TODO: push into completed login array
         // successful execution
-        NSLog(@"new server list - done");
+        //NSLog(@"new server list - done");
         return;
     }
     else {
@@ -165,7 +160,7 @@
 -(void) loginToServer:(NSString *)user pw:(NSString *)password {
     NSDictionary* errorDict;
     NSAppleEventDescriptor* returnDescriptor = NULL;
-    NSLog(@"%@ %@",user, password);
+    NSLog(@"%@ %@ %@",user, password, currentServer);
     NSString * loginString = [self loginScript:user pw:password];
     
     /* for debugging
@@ -232,12 +227,13 @@
     return false;
 }
 
+// logout using a command shell
 - (NSString *)logoutScript:(NSString *)user{
     NSString * logoutSource = [NSString stringWithFormat:
     @"tell application \"Remote Desktop\"\n"
     "set theComputers to first computer of computer list \"%@\"\n" // first %@
     "repeat with x in theComputers\n"
-    "set thescript to \"osascript -e 'tell application \\\"System Events\\\"' -e 'keystroke \\\"q\\\" using {command down, shift down, option down}' -e 'end tell'\"\n"
+    "set thescript to \"osascript -e 'tell application \\\"loginwindow\\\" to  «event aevtrlgo»'\"\n"
     "set thetask to make new send unix command task with properties {name:\"Logout\", script:thescript, showing output:false, user:\"%@\"}\n" // 2nd %@
     "execute thetask on x\n"
     "end repeat\n"
