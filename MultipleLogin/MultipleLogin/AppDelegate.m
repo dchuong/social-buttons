@@ -48,7 +48,7 @@
             NSString * tempPassword = [theUsers[i] getPassword];
             
             [self loginToServer:tempUsername pw:tempPassword];
-            sleep(15);
+            sleep(130);
             [self logoutOfServer:tempUsername];
             sleep(10);
         }
