@@ -40,11 +40,11 @@
                 // make a new server list with a single computer
         [self newComputerList:currentServer];
         
-        [_statusLabel setStringValue:[NSString stringWithFormat:@"It is currently on server: %@", key]];
         NSMutableArray * theUsers = allUser[key];
         // go through the array of user for that server
         for (int i = 0; i < [theUsers count]; i++) {
             NSString * tempUsername = [theUsers[i] getUsername];
+            [_statusLabel setStringValue:[NSString stringWithFormat:@"It is currently on server: %@ %@", key, tempUsername]];
             NSString * tempPassword = [theUsers[i] getPassword];
             
             [self loginToServer:tempUsername pw:tempPassword];
