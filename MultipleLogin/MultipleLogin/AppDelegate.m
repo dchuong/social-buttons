@@ -27,13 +27,16 @@
     
     myComputerList = @"DerrickCompList";
     [self openFile:@"userInfo.txt"];
+
     //[self printDictionary];
     
     // enumerate each users to login and logout
     // allUser is a dictionary ( hashmap in C++ )
    
+    
     NSLog(@"Starting Program");
-
+      [self sendTimerToServer];
+/*
     [_statusLabel setStringValue:@"Program is running..."];
     for(NSString * key in allUser) {
         currentServer = key;
@@ -58,7 +61,7 @@
     
     [self writeResultFile];
     [_statusLabel setStringValue:[NSString stringWithFormat:@"Program is Done"]];
-
+     */
     NSLog(@"Program is Done");
     NSLog(@"ERRORS REPORT");
     NSLog(@"Number of Login Errors: %lu", (unsigned long)[loginErrorList count]);
@@ -127,11 +130,11 @@
             UserInformation * tempUser = temp[i];
             outputString = [NSString stringWithFormat:@"%@%@\n", outputString, [tempUser getUsername]];
         }
-        [outputString stringByAppendingString:@"\n\n"];
+        outputString = [NSString  stringWithFormat:@"%@\n\n",outputString];
     }
     
     // error report
-    [outputString stringByAppendingString:@"ERRORS REPORT\n"];
+    outputString = [NSString stringWithFormat:@"%@ERRORS REPORT\n",outputString];
     outputString = [NSString stringWithFormat:@"%@Number of Login Errors: %lu\n", outputString,(unsigned long)[loginErrorList count]];
     outputString = [NSString stringWithFormat:@"%@Number of Logout Errors: %lu\n\n", outputString,(unsigned long)[logoutErrorList count]];
     
@@ -270,7 +273,7 @@
         //there is an error! - append to the array
         //TODO: push to errorList
         NSLog(@"login - error");
-        [loginErrorList addObject:[NSString stringWithFormat:@"%@ didn't logout at %@", user, currentServer]];
+        [loginErrorList addObject:[NSString stringWithFormat:@"%@ didn't login at %@", user, currentServer]];
         
     }
 }
@@ -278,11 +281,12 @@
 
 //TODO: Still need to be fix
 - (NSString *) timerScript {
+    
     NSString * timerSource = [NSString stringWithFormat:
                                @"tell application \"Remote Desktop\"\n"
                                "set theComputers to the selection\n"
                                "repeat with x in theComputers\n"
-                               "set thescript to \"osascript -e 'global processExists' -e 'set processExists to false' -e 'repeat while processExists = false' -e 'tell application \\\"System Events\\\"' -e 'set processExists to exists process \\\"Finder\\\"' -e 'end tell' -e 'end repeat' -e 'return processExists'\"\n"
+                              "set thescript to \"osascript <<EndOfMyScript \nset loggedInUser to do shell script \\\"/bin/ls -l /dev/console | /usr/bin/awk \\\\\\\"{print $3 }\\\\\\\"\\\" \n set check_user to words 3 of loggedInUser \nglobal findUser\n set findUser to true \n repeat while findUser = true \n set loggedInUser to do shell script \\\"/bin/ls -l /dev/console | /usr/bin/awk \\\\\\\"{print $3 }\\\\\\\"\\\"\n set check_user to words 3 of loggedInUser\n if (check_user is not equal to \\\"root\\\") then \n set findUser to false \n end if \n end repeat \nEndOfMyScript\"\n"
                                "set thetask to make new send unix command task with properties {name:\"Timer\", script:thescript, showing output:false, user:\"root\"}\n"
                                "execute thetask on x\n"
                                "end repeat\n"
@@ -297,7 +301,12 @@
     NSAppleEventDescriptor* returnDescriptor = NULL;
     NSString * timerString = [self timerScript];
     NSAppleScript * timer = [[NSAppleScript alloc] initWithSource: timerString];
+    NSString * path = @"/Users/derrick/Desktop/MultipleLogin/timerScript.scpt";
+    [timerString writeToFile:path atomically:YES encoding:NSUnicodeStringEncoding error:nil];
+
+    
     returnDescriptor = [timer executeAndReturnError: &errorDict];
+    
     if (returnDescriptor != NULL)
     {
         // successful execution
