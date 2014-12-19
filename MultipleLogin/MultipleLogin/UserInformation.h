@@ -11,10 +11,13 @@
 @interface UserInformation : NSObject {
     NSString * username;
     NSString * password;
+    NSString * time;
 }
 
 -(id)initUser:(NSString*)user password:(NSString *)userPassword;
 -(NSString *) getUsername;
 -(NSString *) getPassword;
+-(NSString *) getTimer;
+-(void) setTime:(NSString *)giveTime;
 
 @end

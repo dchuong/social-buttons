@@ -26,7 +26,7 @@
     resultLoginDict = [[NSMutableDictionary alloc] init];
     
     myComputerList = @"DerrickCompList";
-    [self openFile:@"userInfo.txt"];
+    [self openFile:@"usertest.txt"];
 
     //[self printDictionary];
     
@@ -35,8 +35,7 @@
    
     
     NSLog(@"Starting Program");
-      [self sendTimerToServer];
-/*
+
     [_statusLabel setStringValue:@"Program is running..."];
     for(NSString * key in allUser) {
         currentServer = key;
@@ -49,11 +48,33 @@
             NSString * tempUsername = [theUsers[i] getUsername];
             NSString * tempPassword = [theUsers[i] getPassword];
             [_statusLabel setStringValue:[NSString stringWithFormat:@"It is currently on server: %@ %@", key, tempUsername]];
-            
+            // login
             [self loginToServer:tempUsername pw:tempPassword];
-            sleep(130); // change this to the slowest server time since it is not quite working
+            // start timer
+            // TODO: need to fix the return statement
+            NSDate * startDate = [NSDate date];
+            if ([self sendTimerToServer]) {
+                sleep(5);
+                NSDate * finishDate = [NSDate date];
+                NSTimeInterval executionTime = [finishDate timeIntervalSinceDate:startDate];
+                NSLog(@"Execution Time: %f", executionTime);
+                
+                UserInformation * userInfo = [[UserInformation alloc] initUser:tempUsername password:@""];
+                //if the login takes too long - stop it and keep going
+                if(executionTime > 155) {
+                    [userInfo setTime:[NSString stringWithFormat:@"Took too long to login (over %f)", executionTime]];
+                }
+                else {
+                    [userInfo setTime:[NSString stringWithFormat:@"%f", executionTime]];
+
+                }
+                [resultLoginDict[currentServer] addObject:userInfo];
+            }
+  
+            //log out
+            sleep(5);
             [self logoutOfServer:tempUsername];
-            sleep(10);
+            sleep(5);
         }
         [self removeComputer:currentServer];
         sleep(2);
@@ -61,7 +82,7 @@
     
     [self writeResultFile];
     [_statusLabel setStringValue:[NSString stringWithFormat:@"Program is Done"]];
-     */
+    
     NSLog(@"Program is Done");
     NSLog(@"ERRORS REPORT");
     NSLog(@"Number of Login Errors: %lu", (unsigned long)[loginErrorList count]);
@@ -119,18 +140,30 @@
     NSDate * currentDate = [NSDate date];
     NSCalendar* calendar = [NSCalendar currentCalendar];
     NSDateComponents* components = [calendar components:NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:currentDate];
-    NSString * outFilePath = [NSString stringWithFormat:@"%@/result (%ld-%ld-%ld).txt", desktopPath, (long)[components month], (long)[components day], (long)[components year]];
+    NSString * outFilePath;
+    while (true) {
+        int i = 1;
+        outFilePath = [NSString stringWithFormat:@"%@/result (%ld-%ld-%ld)%i.txt", desktopPath, (long)[components month], (long)[components day], (long)[components year], i];
+        NSFileManager* fileMgr = [NSFileManager defaultManager];
+        BOOL fileExists = [fileMgr fileExistsAtPath:outFilePath];
+        if (fileExists == NO){
+            break;
+        }
+        i++;
+    }
+ 
+
     NSString * outputString = @"";
    
     // go through the success
     for(NSString * key in resultLoginDict) {
         outputString = [NSString stringWithFormat:@"%@%@:\n",outputString,key];
-        NSMutableArray * temp = allUser[key];
+        NSMutableArray * temp = resultLoginDict[key];
         for (int i = 0; i < [temp count]; i++){
             UserInformation * tempUser = temp[i];
-            outputString = [NSString stringWithFormat:@"%@%@\n", outputString, [tempUser getUsername]];
+            outputString = [NSString stringWithFormat:@"%@%@ %@\n", outputString, [tempUser getUsername], [tempUser getTimer]];
         }
-        outputString = [NSString  stringWithFormat:@"%@\n\n",outputString];
+        outputString = [NSString  stringWithFormat:@"%@\n",outputString];
     }
     
     // error report
@@ -265,8 +298,6 @@
         
         // successful execution
         NSLog(@"login - done");
-        UserInformation * userInfo = [[UserInformation alloc] initUser:user password:password];
-        [resultLoginDict[currentServer] addObject:userInfo];
         return;
     }
     else {
@@ -284,14 +315,14 @@
     
     NSString * timerSource = [NSString stringWithFormat:
                                @"tell application \"Remote Desktop\"\n"
-                               "set theComputers to the selection\n"
-                               "repeat with x in theComputers\n"
-                              "set thescript to \"osascript <<EndOfMyScript \nset loggedInUser to do shell script \\\"/bin/ls -l /dev/console | /usr/bin/awk \\\\\\\"{print $3 }\\\\\\\"\\\" \n set check_user to words 3 of loggedInUser \nglobal findUser\n set findUser to true \n repeat while findUser = true \n set loggedInUser to do shell script \\\"/bin/ls -l /dev/console | /usr/bin/awk \\\\\\\"{print $3 }\\\\\\\"\\\"\n set check_user to words 3 of loggedInUser\n if (check_user is not equal to \\\"root\\\") then \n set findUser to false \n end if \n end repeat \nEndOfMyScript\"\n"
+                              "set theComputers to first computer of computer list \"%@\"\n" // first %@
+                              "repeat with x in theComputers\n"
+                              "set thescript to \"osascript <<EndOfMyScript \nset startTime to (get current date)\nset loggedInUser to do shell script \\\"/bin/ls -l /dev/console | /usr/bin/awk \\\\\\\"{print $3 }\\\\\\\"\\\" \n set check_user to words 3 of loggedInUser \nglobal findUser\n set findUser to true \n repeat while findUser = true \n set loggedInUser to do shell script \\\"/bin/ls -l /dev/console | /usr/bin/awk \\\\\\\"{print $3 }\\\\\\\"\\\"\n set check_user to words 3 of loggedInUser\n if (check_user is not equal to \\\"root\\\") then \n set findUser to false \n end if \nset endTime to (get current date)\n set duration to endTime - startTime \n if(duration >150) then error number -128 \nend repeat \nEndOfMyScript\"\n"
                                "set thetask to make new send unix command task with properties {name:\"Timer\", script:thescript, showing output:false, user:\"root\"}\n"
                                "execute thetask on x\n"
                                "end repeat\n"
                                "end tell\n"
-                               "return true"];
+                               "return true", myComputerList];
     
     return timerSource;
 }
@@ -301,17 +332,17 @@
     NSAppleEventDescriptor* returnDescriptor = NULL;
     NSString * timerString = [self timerScript];
     NSAppleScript * timer = [[NSAppleScript alloc] initWithSource: timerString];
+    /*
     NSString * path = @"/Users/derrick/Desktop/MultipleLogin/timerScript.scpt";
     [timerString writeToFile:path atomically:YES encoding:NSUnicodeStringEncoding error:nil];
-
-    
+*/
     returnDescriptor = [timer executeAndReturnError: &errorDict];
     
     if (returnDescriptor != NULL)
     {
         // successful execution
         if([[returnDescriptor stringValue] isEqualToString:@"true"]) {
-            NSLog(@"mytimer work");
+          //  NSLog(@"mytimer work");
             return true;
         }
     }
@@ -354,7 +385,7 @@
     else {
         //there is an error!
         NSLog(@"logout - error");
-        [logoutErrorList addObject:[NSString stringWithFormat:@"%@ didn't logout at %@", user, currentServer]];
+        [logoutErrorList addObject:[NSString stringWithFormat:@"%@ wasn't login - couldn't logout at %@", user, currentServer]];
         
     }
     

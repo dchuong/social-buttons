@@ -19,6 +19,9 @@
     
     return self;
 }
+-(void)setTime:(NSString *)giveTime {
+    time = giveTime;
+}
 -(NSString *) getUsername {
     return username;
 }
@@ -26,4 +29,7 @@
     return password;
 }
 
+- (NSString *)getTimer {
+    return time;
+}
 @end
