@@ -16,7 +16,7 @@
 @implementation AppDelegate
 
 // main loop
-//TODO: timer
+//TODO: line cartiage in reading the text file
 //TODO: need to functionalize sending the commands to ARD into one function
 //TODO: clean derrickcomplist even if it crash or stop
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
@@ -26,7 +26,7 @@
     resultLoginDict = [[NSMutableDictionary alloc] init];
     
     myComputerList = @"DerrickCompList";
-    [self openFile:@"usertest.txt"];
+    [self openFile:@"userInfo.txt"]; // The text file needs to be in the desktop and the name goes here.
 
     //[self printDictionary];
     
@@ -47,20 +47,21 @@
         for (int i = 0; i < [theUsers count]; i++) {
             NSString * tempUsername = [theUsers[i] getUsername];
             NSString * tempPassword = [theUsers[i] getPassword];
-            [_statusLabel setStringValue:[NSString stringWithFormat:@"It is currently on server: %@ %@", key, tempUsername]];
+    
             // login
             [self loginToServer:tempUsername pw:tempPassword];
             // start timer
             // TODO: need to fix the return statement
             NSDate * startDate = [NSDate date];
+            sleep(10);
             if ([self sendTimerToServer]) {
-                sleep(5);
                 NSDate * finishDate = [NSDate date];
                 NSTimeInterval executionTime = [finishDate timeIntervalSinceDate:startDate];
                 NSLog(@"Execution Time: %f", executionTime);
                 
                 UserInformation * userInfo = [[UserInformation alloc] initUser:tempUsername password:@""];
                 //if the login takes too long - stop it and keep going
+                 [_statusLabel setStringValue:[NSString stringWithFormat:@"It is currently on server: %@ %@ %f", key, tempUsername, executionTime]];
                 if(executionTime > 155) {
                     [userInfo setTime:[NSString stringWithFormat:@"Took too long to login (over %f)", executionTime]];
                 }
@@ -72,7 +73,7 @@
             }
   
             //log out
-            sleep(5);
+            sleep(2);
             [self logoutOfServer:tempUsername];
             sleep(5);
         }
