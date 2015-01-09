@@ -55,13 +55,13 @@
             UserInformation * userInfo = [[UserInformation alloc] initUser:tempUsername password:@""];
             [_statusLabel setStringValue:[NSString stringWithFormat:@"It is currently on server: %@ %@", key, tempUsername]];
             sleep(5);
-            if ([self sendTimerToServer:15]) {
+            if ([self sendTimerToServer:90]) {
                 NSDate * finishDate = [NSDate date];
                 NSTimeInterval executionTime = [finishDate timeIntervalSinceDate:startDate];
                 NSLog(@"Execution Time: %f", executionTime);
             
                 //if the login takes too long - stop it and keep going
-                if(executionTime > 20) {
+                if(executionTime > 95) {
                     [userInfo setTime:[NSString stringWithFormat:@"Took too long to login (over %f)", executionTime]];
                 }
                 else {
