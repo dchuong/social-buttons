@@ -10,6 +10,7 @@
 #import <Foundation/Foundation.h>
 #import <AppleScriptObjC/AppleScriptObjC.h>
 #import "UserInformation.h"
+#import "ScriptToRemoteDesktop.h"
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 {
     NSString * currentServer;
@@ -19,22 +20,25 @@
     NSMutableDictionary * resultLoginDict;
     NSMutableArray * logoutDone;
     NSMutableDictionary * allUser;
+    NSMutableArray * checkServerList;
     
 }
 -(void) openFile:(NSString *)filename;
 -(void) writeResultFile;
+
 -(NSString *) newComputerScript:(NSString *)selectedServer;
 -(void) newComputerList:(NSString *)selectedServer;
 -(NSString *) removeComputerScript:(NSString *)selectedServer;
 -(void)removeComputer:(NSString *)selectedServer;
+-(void)checkAllServers:(int)time;
 
 -(void) loginToServer:(NSString *)user pw:(NSString *)password;
--(BOOL) sendTimerToServer;
+-(BOOL) sendTimerToServer:(int)time;
 -(void) logoutOfServer:(NSString *)user;
 
 
 -(NSString *) loginScript:(NSString *)user pw:(NSString *)password;
--(NSString *) timerScript;
+-(NSString *) timerScript:(int)time;
 -(NSString *) logoutScript:(NSString *)user;
 
 -(void) printDictionary;

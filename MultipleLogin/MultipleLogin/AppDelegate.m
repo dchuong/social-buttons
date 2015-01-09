@@ -20,79 +20,88 @@
 //TODO: need to functionalize sending the commands to ARD into one function
 //TODO: clean derrickcomplist even if it crash or stop
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    BOOL writeUserTime = NO;
     allUser = [[NSMutableDictionary alloc] init];
     loginErrorList = [[NSMutableArray alloc] init];
     logoutErrorList = [[NSMutableArray alloc] init];
     resultLoginDict = [[NSMutableDictionary alloc] init];
+    checkServerList = [[NSMutableArray alloc] init];
     
     myComputerList = @"DerrickCompList";
-    [self openFile:@"userInfo.txt"]; // The text file needs to be in the desktop and the name goes here.
-
-    //[self printDictionary];
+    [self openFile:@"usertest.txt"]; // The text file needs to be in the desktop and the name goes here.
     
     // enumerate each users to login and logout
     // allUser is a dictionary ( hashmap in C++ )
-   
-    
     NSLog(@"Starting Program");
-
     [_statusLabel setStringValue:@"Program is running..."];
     for(NSString * key in allUser) {
         currentServer = key;
-                // make a new server list with a single computer
-        [self newComputerList:currentServer];
         
+        // make a new server list with a single computer
+        [self newComputerList:currentServer];
+        [checkServerList addObject:[NSString stringWithFormat:@"%@", currentServer]];
         NSMutableArray * theUsers = allUser[key];
+        
         // go through the array of user for that server
         for (int i = 0; i < [theUsers count]; i++) {
+            writeUserTime = NO;
             NSString * tempUsername = [theUsers[i] getUsername];
             NSString * tempPassword = [theUsers[i] getPassword];
     
             // login
             [self loginToServer:tempUsername pw:tempPassword];
-            // start timer
-            // TODO: need to fix the return statement
+            // start time
             NSDate * startDate = [NSDate date];
-            sleep(10);
-            if ([self sendTimerToServer]) {
+            UserInformation * userInfo = [[UserInformation alloc] initUser:tempUsername password:@""];
+            [_statusLabel setStringValue:[NSString stringWithFormat:@"It is currently on server: %@ %@", key, tempUsername]];
+            sleep(5);
+            if ([self sendTimerToServer:15]) {
                 NSDate * finishDate = [NSDate date];
                 NSTimeInterval executionTime = [finishDate timeIntervalSinceDate:startDate];
                 NSLog(@"Execution Time: %f", executionTime);
-                
-                UserInformation * userInfo = [[UserInformation alloc] initUser:tempUsername password:@""];
+            
                 //if the login takes too long - stop it and keep going
-                 [_statusLabel setStringValue:[NSString stringWithFormat:@"It is currently on server: %@ %@ %f", key, tempUsername, executionTime]];
-                if(executionTime > 155) {
+                if(executionTime > 20) {
                     [userInfo setTime:[NSString stringWithFormat:@"Took too long to login (over %f)", executionTime]];
                 }
                 else {
                     [userInfo setTime:[NSString stringWithFormat:@"%f", executionTime]];
-
                 }
+                writeUserTime = YES;
                 [resultLoginDict[currentServer] addObject:userInfo];
+            // For some servers the timer has stop but the ARD active tasks keep continuing (infinite loop from ARD)
+            
             }
   
-            //log out
-            sleep(2);
+            sleep(10);
+            // remove the active script for timer
+            [ScriptToRemoteDesktop stopCurrentTaskScript];
             [self logoutOfServer:tempUsername];
-            sleep(5);
+            sleep(2);
+            // remove the active script for logout
+            [ScriptToRemoteDesktop stopCurrentTaskScript];
+            sleep(3);
+            NSLog(@"\n");
         }
         [self removeComputer:currentServer];
         sleep(2);
     }
-    
+    //check if all users are logout in server
     [self writeResultFile];
     [_statusLabel setStringValue:[NSString stringWithFormat:@"Program is Done"]];
-    
     NSLog(@"Program is Done");
     NSLog(@"ERRORS REPORT");
     NSLog(@"Number of Login Errors: %lu", (unsigned long)[loginErrorList count]);
     NSLog(@"Number of Logout Errors: %lu", (unsigned long)[logoutErrorList count]);
+   
+    NSLog(@"checking servers");
+    [self checkAllServers:3];
 
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
+
 }
 
 -(void) openFile:(NSString *)filename{
@@ -134,20 +143,32 @@
     }
 }
 
+- (void)checkAllServers:(int)time {
+    for (NSString * server in checkServerList) {
+        [self newComputerList:server];
+        if ([self sendTimerToServer:time]) {
+            [self logoutOfServer:@"root"];
+        };
+        [self removeComputer:server];
+
+    }
+}
+
 //write the result to a text file
 - (void)writeResultFile {
+    
     NSArray * paths = NSSearchPathForDirectoriesInDomains (NSDesktopDirectory, NSUserDomainMask, YES);
     NSString * desktopPath = [paths objectAtIndex:0];
     NSDate * currentDate = [NSDate date];
     NSCalendar* calendar = [NSCalendar currentCalendar];
     NSDateComponents* components = [calendar components:NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:currentDate];
     NSString * outFilePath;
+    int i = 1;
     while (true) {
-        int i = 1;
         outFilePath = [NSString stringWithFormat:@"%@/result (%ld-%ld-%ld)%i.txt", desktopPath, (long)[components month], (long)[components day], (long)[components year], i];
         NSFileManager* fileMgr = [NSFileManager defaultManager];
         BOOL fileExists = [fileMgr fileExistsAtPath:outFilePath];
-        if (fileExists == NO){
+        if (fileExists == NO) {
             break;
         }
         i++;
@@ -253,7 +274,7 @@
     returnDescriptor = [remove executeAndReturnError: &errorDict];
     if (returnDescriptor != NULL)
     {
-        NSLog(@"remove - done");
+      //  NSLog(@"remove - done");
         return;
     }
     else {
@@ -266,7 +287,8 @@
 //login using applescript for unix ARD
 -(NSString *) loginScript:(NSString *)user pw:(NSString *)password; {
     NSString * loginSource = [NSString stringWithFormat:
-    @"tell application \"Remote Desktop\"\n"
+    @"tell application \"Remote Desktop\" to activate \n"
+    "tell application \"Remote Desktop\"\n"
     "set theComputers to first computer of computer list \"%@\"\n" // first %@
     "repeat with x in theComputers\n"
     "set thescript to \"osascript -e 'tell application \\\"System Events\\\"' -e 'keystroke \\\"%@\\\"' -e 'keystroke tab' -e 'delay 0.5' -e 'keystroke \\\"%@\\\"' -e 'delay 0.5' -e 'keystroke return' -e 'end tell'\"\n" // 2nd , 3rd %@
@@ -311,27 +333,27 @@
 }
 
 
-//TODO: Still need to be fix
-- (NSString *) timerScript {
+//TODO: Need to end when certain amount of time as gone pass
+- (NSString *) timerScript:(int)time {
     
     NSString * timerSource = [NSString stringWithFormat:
                                @"tell application \"Remote Desktop\"\n"
                               "set theComputers to first computer of computer list \"%@\"\n" // first %@
                               "repeat with x in theComputers\n"
-                              "set thescript to \"osascript <<EndOfMyScript \nset startTime to (get current date)\nset loggedInUser to do shell script \\\"/bin/ls -l /dev/console | /usr/bin/awk \\\\\\\"{print $3 }\\\\\\\"\\\" \n set check_user to words 3 of loggedInUser \nglobal findUser\n set findUser to true \n repeat while findUser = true \n set loggedInUser to do shell script \\\"/bin/ls -l /dev/console | /usr/bin/awk \\\\\\\"{print $3 }\\\\\\\"\\\"\n set check_user to words 3 of loggedInUser\n if (check_user is not equal to \\\"root\\\") then \n set findUser to false \n end if \nset endTime to (get current date)\n set duration to endTime - startTime \n if(duration >150) then error number -128 \nend repeat \nEndOfMyScript\"\n"
+                              "set thescript to \"osascript <<EndOfMyScript \nset startTime to (get current date)\nset loggedInUser to do shell script \\\"/bin/ls -l /dev/console | /usr/bin/awk \\\\\\\"{print $3 }\\\\\\\"\\\" \n set check_user to words 3 of loggedInUser \nglobal findUser\n set findUser to true \n repeat while findUser = true \n set loggedInUser to do shell script \\\"/bin/ls -l /dev/console | /usr/bin/awk \\\\\\\"{print $3 }\\\\\\\"\\\"\n set check_user to words 3 of loggedInUser\n if (check_user is not equal to \\\"root\\\") then \n set findUser to false \n end if \n set endTime to (get current date) \n set duration to endTime - startTime \n if (duration > %i) then error number -128 \n end repeat \nEndOfMyScript\"\n"
                                "set thetask to make new send unix command task with properties {name:\"Timer\", script:thescript, showing output:false, user:\"root\"}\n"
                                "execute thetask on x\n"
                                "end repeat\n"
                                "end tell\n"
-                               "return true", myComputerList];
+                               "return true", myComputerList, time];
     
     return timerSource;
 }
 
-- (BOOL)sendTimerToServer {
+- (BOOL)sendTimerToServer:(int)time {
     NSDictionary* errorDict;
     NSAppleEventDescriptor* returnDescriptor = NULL;
-    NSString * timerString = [self timerScript];
+    NSString * timerString = [self timerScript:time];
     NSAppleScript * timer = [[NSAppleScript alloc] initWithSource: timerString];
     /*
     NSString * path = @"/Users/derrick/Desktop/MultipleLogin/timerScript.scpt";
@@ -349,7 +371,7 @@
     }
     else {
         //there is an error!
-        NSLog(@"mytimer suk");
+        NSLog(@"mytimer - fail");
     }
     return false;
 }
@@ -360,7 +382,7 @@
     @"tell application \"Remote Desktop\"\n"
     "set theComputers to first computer of computer list \"%@\"\n" // first %@
     "repeat with x in theComputers\n"
-    "set thescript to \"osascript -e 'tell application \\\"loginwindow\\\" to  «event aevtrlgo»'\"\n"
+    "set thescript to \"osascript -e 'tell application \\\"System Events\\\" to keystroke \\\"q\\\" using {command down, option down, shift down}'\"\n"
     "set thetask to make new send unix command task with properties {name:\"Logout\", script:thescript, showing output:false, user:\"%@\"}\n" // 2nd %@
     "execute thetask on x\n"
     "end repeat\n"
@@ -386,11 +408,10 @@
     else {
         //there is an error!
         NSLog(@"logout - error");
-        [logoutErrorList addObject:[NSString stringWithFormat:@"%@ wasn't login - couldn't logout at %@", user, currentServer]];
-        
     }
-    
 }
+
+
 
 // dictionary holds the server + user information
 - (void) printDictionary {
@@ -404,4 +425,6 @@
         }
     }
 }
+
+
 @end

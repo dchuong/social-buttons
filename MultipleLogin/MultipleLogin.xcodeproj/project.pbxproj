@@ -15,6 +15,7 @@
 		49018AE21A38B5C2004C80C3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49018AE11A38B5C2004C80C3 /* Foundation.framework */; };
 		49018AE41A38B74E004C80C3 /* AppleScriptObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49018AE31A38B74E004C80C3 /* AppleScriptObjC.framework */; };
 		49018AE71A3B71A4004C80C3 /* UserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 49018AE61A3B71A4004C80C3 /* UserInformation.m */; };
+		498774E61A5CB6A00040A789 /* ScriptToRemoteDesktop.m in Sources */ = {isa = PBXBuildFile; fileRef = 498774E51A5CB6A00040A789 /* ScriptToRemoteDesktop.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,6 +43,8 @@
 		49018AE31A38B74E004C80C3 /* AppleScriptObjC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppleScriptObjC.framework; path = System/Library/Frameworks/AppleScriptObjC.framework; sourceTree = SDKROOT; };
 		49018AE51A3B71A4004C80C3 /* UserInformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserInformation.h; sourceTree = "<group>"; };
 		49018AE61A3B71A4004C80C3 /* UserInformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserInformation.m; sourceTree = "<group>"; };
+		498774E41A5CB6A00040A789 /* ScriptToRemoteDesktop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptToRemoteDesktop.h; sourceTree = "<group>"; };
+		498774E51A5CB6A00040A789 /* ScriptToRemoteDesktop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScriptToRemoteDesktop.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +90,8 @@
 		49018AC01A38B5B3004C80C3 /* MultipleLogin */ = {
 			isa = PBXGroup;
 			children = (
+				498774E41A5CB6A00040A789 /* ScriptToRemoteDesktop.h */,
+				498774E51A5CB6A00040A789 /* ScriptToRemoteDesktop.m */,
 				49018AE61A3B71A4004C80C3 /* UserInformation.m */,
 				49018AE51A3B71A4004C80C3 /* UserInformation.h */,
 				49018AC31A38B5B3004C80C3 /* AppDelegate.h */,
@@ -223,6 +228,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				498774E61A5CB6A00040A789 /* ScriptToRemoteDesktop.m in Sources */,
 				49018AC71A38B5B3004C80C3 /* main.m in Sources */,
 				49018AE71A3B71A4004C80C3 /* UserInformation.m in Sources */,
 				49018AC51A38B5B3004C80C3 /* AppDelegate.m in Sources */,
