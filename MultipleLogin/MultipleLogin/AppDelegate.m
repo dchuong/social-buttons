@@ -55,7 +55,8 @@
             UserInformation * userInfo = [[UserInformation alloc] initUser:tempUsername password:@""];
             [_statusLabel setStringValue:[NSString stringWithFormat:@"It is currently on server: %@ %@", key, tempUsername]];
             sleep(5);
-            if ([self sendTimerToServer:90]) {
+            
+            if ([self sendTimerToServer:90 script:sendWhichScript = TIMER]) {
                 NSDate * finishDate = [NSDate date];
                 NSTimeInterval executionTime = [finishDate timeIntervalSinceDate:startDate];
                 NSLog(@"Execution Time: %f", executionTime);
@@ -143,12 +144,15 @@
     }
 }
 
-- (void)checkAllServers:(int)time {
+//go through the unique server in the textfile and check if any user is still login
+- (void)checkAllServers:(int)time  {
     for (NSString * server in checkServerList) {
         [self newComputerList:server];
-        if ([self sendTimerToServer:time]) {
+        if ([self sendTimerToServer:time script:sendWhichScript = CHECKLOGIN]) {
             [self logoutOfServer:@"root"];
+            [ScriptToRemoteDesktop stopCurrentTaskScript];
         };
+        [ScriptToRemoteDesktop stopCurrentTaskScript];
         [self removeComputer:server];
 
     }
@@ -350,15 +354,44 @@
     return timerSource;
 }
 
-- (BOOL)sendTimerToServer:(int)time {
+- (NSString *)checkUserLogin {
+    NSString * checkUser = [NSString stringWithFormat:
+                              @"tell application \"Remote Desktop\"\n"
+                              "set theComputers to first computer of computer list \"%@\"\n" // first %@
+                              "repeat with x in theComputers\n"
+                              "set thescript to \"osascript <<EndOfMyScript \nset loggedInUser to do shell script \\\"/bin/ls -l /dev/console | /usr/bin/awk \\\\\\\"{print $3 }\\\\\\\"\\\" \n set check_user to words 3 of loggedInUser \n if (check_user is equal to \\\"root\\\") then error number -128 \nEndOfMyScript\"\n"
+                              "set thetask to make new send unix command task with properties {name:\"CheckUser\", script:thescript, showing output:false, user:\"root\"}\n"
+                              "execute thetask on x\n"
+                              "end repeat\n"
+                              "end tell", myComputerList];
+    
+    return checkUser;
+   
+}
+
+-(BOOL) sendTimerToServer:(int)time script:(enum MyScript)kind {
     NSDictionary* errorDict;
     NSAppleEventDescriptor* returnDescriptor = NULL;
-    NSString * timerString = [self timerScript:time];
-    NSAppleScript * timer = [[NSAppleScript alloc] initWithSource: timerString];
-    /*
-    NSString * path = @"/Users/derrick/Desktop/MultipleLogin/timerScript.scpt";
-    [timerString writeToFile:path atomically:YES encoding:NSUnicodeStringEncoding error:nil];
-*/
+    NSString * scriptString;
+
+    // Control structure for which script to run it
+    switch (kind) {
+        case TIMER:
+            scriptString = [self timerScript:time];
+            break;
+        case CHECKLOGIN:
+            scriptString = [self checkUserLogin];
+            break;
+        case AUTOLOGIN:
+            scriptString = [self loginScript: pw:<#(NSString *)#>]
+            break;
+        case AUTOLOGOUT:
+            break;
+        default:
+            break;
+    }
+    
+    NSAppleScript * timer = [[NSAppleScript alloc] initWithSource: scriptString];
     returnDescriptor = [timer executeAndReturnError: &errorDict];
     
     if (returnDescriptor != NULL)

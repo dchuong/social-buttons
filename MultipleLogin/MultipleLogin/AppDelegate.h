@@ -11,6 +11,14 @@
 #import <AppleScriptObjC/AppleScriptObjC.h>
 #import "UserInformation.h"
 #import "ScriptToRemoteDesktop.h"
+
+typedef NS_ENUM(NSInteger, MyScript) {
+    TIMER,
+    CHECKLOGIN,
+    AUTOLOGIN,
+    AUTOLOGOUT
+};
+
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 {
     NSString * currentServer;
@@ -21,6 +29,7 @@
     NSMutableArray * logoutDone;
     NSMutableDictionary * allUser;
     NSMutableArray * checkServerList;
+    enum MyScript sendWhichScript;
     
 }
 -(void) openFile:(NSString *)filename;
@@ -33,13 +42,14 @@
 -(void)checkAllServers:(int)time;
 
 -(void) loginToServer:(NSString *)user pw:(NSString *)password;
--(BOOL) sendTimerToServer:(int)time;
+-(BOOL) sendTimerToServer:(int)time script:(enum MyScript)kind;
 -(void) logoutOfServer:(NSString *)user;
 
 
 -(NSString *) loginScript:(NSString *)user pw:(NSString *)password;
 -(NSString *) timerScript:(int)time;
 -(NSString *) logoutScript:(NSString *)user;
+-(NSString *) checkUserLogin;
 
 -(void) printDictionary;
 

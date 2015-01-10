@@ -10,7 +10,7 @@
 
 @implementation ScriptToRemoteDesktop
 
-// stop the 
+// stop the
 + (void)stopCurrentTaskScript {
     NSDictionary* errorDict;
     NSAppleEventDescriptor* returnDescriptor = NULL;
@@ -21,9 +21,6 @@
                            "keystroke \".\" using {command down, option down}\n"
                            "end tell"
                            ];
-    
-    NSString * path = @"/Users/derrick/Desktop/MultipleLogin/stopTask.scpt";
-    [stopTask writeToFile:path atomically:YES encoding:NSUnicodeStringEncoding error:nil];
     
     NSAppleScript * stopCurrentTask = [[NSAppleScript alloc] initWithSource: stopTask];
     returnDescriptor = [stopCurrentTask executeAndReturnError: &errorDict];
