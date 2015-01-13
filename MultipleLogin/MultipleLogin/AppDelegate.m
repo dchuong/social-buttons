@@ -38,7 +38,7 @@
         currentServer = key;
         
         // make a new server list with a single computer
-        [self newComputerList:currentServer];
+        [self sendUserToServer:@"" pw:@"" timer:0 script:sendWhichScript = ADDCOMPUTERLIST server:currentServer];
         [checkServerList addObject:[NSString stringWithFormat:@"%@", currentServer]];
         NSMutableArray * theUsers = allUser[key];
         
@@ -49,14 +49,14 @@
             NSString * tempPassword = [theUsers[i] getPassword];
     
             // login
-            [self loginToServer:tempUsername pw:tempPassword];
+            [self sendUserToServer:tempUsername pw:tempPassword timer:0 script:sendWhichScript = AUTOLOGIN server:currentServer];
             // start time
             NSDate * startDate = [NSDate date];
             UserInformation * userInfo = [[UserInformation alloc] initUser:tempUsername password:@""];
             [_statusLabel setStringValue:[NSString stringWithFormat:@"It is currently on server: %@ %@", key, tempUsername]];
             sleep(5);
             
-            if ([self sendTimerToServer:90 script:sendWhichScript = TIMER]) {
+            if ([self sendUserToServer:@"" pw:@"" timer:90 script:sendWhichScript = TIMER server:currentServer]) {
                 NSDate * finishDate = [NSDate date];
                 NSTimeInterval executionTime = [finishDate timeIntervalSinceDate:startDate];
                 NSLog(@"Execution Time: %f", executionTime);
@@ -77,14 +77,15 @@
             sleep(10);
             // remove the active script for timer
             [ScriptToRemoteDesktop stopCurrentTaskScript];
-            [self logoutOfServer:tempUsername];
+            [self sendUserToServer:tempUsername pw:@"" timer:0 script:sendWhichScript = AUTOLOGOUT server: currentServer];
             sleep(2);
             // remove the active script for logout
             [ScriptToRemoteDesktop stopCurrentTaskScript];
             sleep(3);
             NSLog(@"\n");
         }
-        [self removeComputer:currentServer];
+        [self sendUserToServer:@"" pw:@"" timer:0 script:sendWhichScript = REMOVECOMPUTERLIST server: currentServer];
+      
         sleep(2);
     }
     //check if all users are logout in server
@@ -146,14 +147,15 @@
 
 //go through the unique server in the textfile and check if any user is still login
 - (void)checkAllServers:(int)time  {
+    sleep(3);
     for (NSString * server in checkServerList) {
-        [self newComputerList:server];
-        if ([self sendTimerToServer:time script:sendWhichScript = CHECKLOGIN]) {
-            [self logoutOfServer:@"root"];
+    [self sendUserToServer:@"" pw:@"" timer:0 script:sendWhichScript = ADDCOMPUTERLIST server: server];
+        if ([self sendUserToServer:@"" pw:@"" timer:time script:sendWhichScript = CHECKLOGIN server:server]) {
+            [self sendUserToServer:@"root" pw:@"" timer:0 script:sendWhichScript = AUTOLOGOUT server:server];
             [ScriptToRemoteDesktop stopCurrentTaskScript];
         };
         [ScriptToRemoteDesktop stopCurrentTaskScript];
-        [self removeComputer:server];
+        [self sendUserToServer:@"" pw:@"" timer:0 script:sendWhichScript = REMOVECOMPUTERLIST server: server];
 
     }
 }
@@ -233,28 +235,6 @@
     
 }
 
--(void)newComputerList:(NSString *)selectedServer {
-    NSDictionary* errorDict;
-    NSAppleEventDescriptor* returnDescriptor = NULL;
-    NSString * createServerString = [self newComputerScript:selectedServer];
-    
-    NSAppleScript * createServer = [[NSAppleScript alloc] initWithSource: createServerString];
-    
-    //execute and the return descriptor returns a string or a null
-    returnDescriptor = [createServer executeAndReturnError: &errorDict];
-    if (returnDescriptor != NULL)
-    {
-        // successful execution
-        //NSLog(@"new server list - done");
-        return;
-    }
-    else {
-        //there is an error! - append to the array
-        //TODO: push to errorList
-        NSLog(@"new server list - error");
-    }
-}
-
 //remove a computer from a computer list in ARD
 - (NSString *) removeComputerScript:(NSString *)selectedServer {
     NSString * removeSource = [NSString stringWithFormat:
@@ -263,30 +243,6 @@
                                "end tell", selectedServer, myComputerList];
     return removeSource;
 }
-
--(void) removeComputer:(NSString *)selectedServer {
-    NSDictionary* errorDict;
-    NSAppleEventDescriptor* returnDescriptor = NULL;
-    NSString * removeString = [self removeComputerScript:selectedServer];
-    
-    NSString * path = @"/Users/derrick/Desktop/MultipleLogin/removeScript.scpt";
-    [removeString writeToFile:path atomically:YES encoding:NSUnicodeStringEncoding error:nil];
-    //create the login applescript for it to execute
-    NSAppleScript * remove = [[NSAppleScript alloc] initWithSource: removeString];
-    
-    //execute and the return descriptor returns a string or a null
-    returnDescriptor = [remove executeAndReturnError: &errorDict];
-    if (returnDescriptor != NULL)
-    {
-      //  NSLog(@"remove - done");
-        return;
-    }
-    else {
-        NSLog(@"remove - error");
-        
-    }
-}
-
 
 //login using applescript for unix ARD
 -(NSString *) loginScript:(NSString *)user pw:(NSString *)password; {
@@ -302,40 +258,6 @@
     "end tell", myComputerList ,user, password];
     return loginSource;
 }
-
-// send the command to the ard
--(void) loginToServer:(NSString *)user pw:(NSString *)password {
-    NSDictionary* errorDict;
-    NSAppleEventDescriptor* returnDescriptor = NULL;
-    NSLog(@"%@ %@ %@",user, password, currentServer);
-    NSString * loginString = [self loginScript:user pw:password];
-    
-    /* for debugging
-    NSString * path = @"/Users/derrick/Desktop/MultipleLogin/LoginScript.scpt";
-    [loginString writeToFile:path atomically:YES encoding:NSUnicodeStringEncoding error:nil];
-     */
-    
-    //create the login applescript for it to execute
-    NSAppleScript * login = [[NSAppleScript alloc] initWithSource: loginString];
-    
-    //execute and the return descriptor returns a string or a null
-    returnDescriptor = [login executeAndReturnError: &errorDict];
-    if (returnDescriptor != NULL)
-    {
-        
-        // successful execution
-        NSLog(@"login - done");
-        return;
-    }
-    else {
-        //there is an error! - append to the array
-        //TODO: push to errorList
-        NSLog(@"login - error");
-        [loginErrorList addObject:[NSString stringWithFormat:@"%@ didn't login at %@", user, currentServer]];
-        
-    }
-}
-
 
 //TODO: Need to end when certain amount of time as gone pass
 - (NSString *) timerScript:(int)time {
@@ -369,11 +291,32 @@
    
 }
 
--(BOOL) sendTimerToServer:(int)time script:(enum MyScript)kind {
+// logout using a command shell
+- (NSString *)logoutScript:(NSString *)user{
+    NSString * logoutSource = [NSString stringWithFormat:
+                               @"tell application \"Remote Desktop\"\n"
+                               "set theComputers to first computer of computer list \"%@\"\n" // first %@
+                               "repeat with x in theComputers\n"
+                               "set thescript to \"osascript -e 'tell application \\\"System Events\\\" to keystroke \\\"q\\\" using {command down, option down, shift down}'\"\n"
+                               "set thetask to make new send unix command task with properties {name:\"Logout\", script:thescript, showing output:false, user:\"%@\"}\n" // 2nd %@
+                               "execute thetask on x\n"
+                               "end repeat\n"
+                               "end tell", myComputerList,user];
+    
+    return logoutSource;
+}
+
+// this function creates the script and send it to ARD
+-(BOOL) sendUserToServer:(NSString *)user pw:(NSString *)password timer:(int)time script:(enum MyScript)kind server:(NSString *) selectedServer {
     NSDictionary* errorDict;
     NSAppleEventDescriptor* returnDescriptor = NULL;
     NSString * scriptString;
 
+    /* for debugging
+     NSString * path = @"/Users/derrick/Desktop/MultipleLogin/LoginScript.scpt";
+     [loginString writeToFile:path atomically:YES encoding:NSUnicodeStringEncoding error:nil];
+     */
+    
     // Control structure for which script to run it
     switch (kind) {
         case TIMER:
@@ -383,9 +326,17 @@
             scriptString = [self checkUserLogin];
             break;
         case AUTOLOGIN:
-            scriptString = [self loginScript: pw:<#(NSString *)#>]
+            NSLog(@"%@ %@ %@",user, password, selectedServer);
+            scriptString = [self loginScript:user pw:password];
             break;
         case AUTOLOGOUT:
+            scriptString = [self logoutScript:user];
+            break;
+        case ADDCOMPUTERLIST:
+            scriptString = [self newComputerScript:selectedServer];
+            break;
+        case REMOVECOMPUTERLIST:
+            scriptString = [self removeComputerScript:selectedServer];
             break;
         default:
             break;
@@ -394,57 +345,50 @@
     NSAppleScript * timer = [[NSAppleScript alloc] initWithSource: scriptString];
     returnDescriptor = [timer executeAndReturnError: &errorDict];
     
+    //check login need fix
     if (returnDescriptor != NULL)
     {
-        // successful execution
-        if([[returnDescriptor stringValue] isEqualToString:@"true"]) {
-          //  NSLog(@"mytimer work");
-            return true;
+        switch (kind) {
+            case CHECKLOGIN:
+                NSLog(@"true:");
+                return true;
+                break;
+            case AUTOLOGIN:
+                NSLog(@"login - done");
+                break;
+            case AUTOLOGOUT:
+                NSLog(@"logout - done");
+                break;
+            default:
+                break;
         }
-    }
-    else {
-        //there is an error!
-        NSLog(@"mytimer - fail");
-    }
-    return false;
-}
-
-// logout using a command shell
-- (NSString *)logoutScript:(NSString *)user{
-    NSString * logoutSource = [NSString stringWithFormat:
-    @"tell application \"Remote Desktop\"\n"
-    "set theComputers to first computer of computer list \"%@\"\n" // first %@
-    "repeat with x in theComputers\n"
-    "set thescript to \"osascript -e 'tell application \\\"System Events\\\" to keystroke \\\"q\\\" using {command down, option down, shift down}'\"\n"
-    "set thetask to make new send unix command task with properties {name:\"Logout\", script:thescript, showing output:false, user:\"%@\"}\n" // 2nd %@
-    "execute thetask on x\n"
-    "end repeat\n"
-    "end tell", myComputerList,user];
-    
-    return logoutSource;
-}
-
-// Log out without showing a confirmation dialog
-- (void)logoutOfServer:(NSString *)user {
-    NSDictionary* errorDict;
-    NSAppleEventDescriptor* returnDescriptor = NULL;
-    NSString * logoutString = [self logoutScript:user];
-    NSAppleScript * logout = [[NSAppleScript alloc] initWithSource: logoutString];
-    returnDescriptor = [logout executeAndReturnError: &errorDict];
-    if (returnDescriptor != NULL)
-    {
         // successful execution
-        NSLog(@"logout - done");
-        //TODO: push into completed login array
-        return;
+        return true;
     }
     else {
         //there is an error!
-        NSLog(@"logout - error");
+        switch (kind) {
+            case CHECKLOGIN:
+                NSLog(@"false:");
+                return false;
+                break;
+            case AUTOLOGIN:
+                NSLog(@"login - error");
+                [loginErrorList addObject:[NSString stringWithFormat:@"%@ didn't login at %@", user, currentServer]];     break;
+            case AUTOLOGOUT:
+                NSLog(@"logout - error");
+                break;
+            case ADDCOMPUTERLIST:
+                NSLog(@"new server list - error");
+                break;
+            case REMOVECOMPUTERLIST:
+                NSLog(@"remove server list - error");
+            default:
+                break;
+        }
+        return false;
     }
 }
-
-
 
 // dictionary holds the server + user information
 - (void) printDictionary {

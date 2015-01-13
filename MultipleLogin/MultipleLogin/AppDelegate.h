@@ -16,7 +16,9 @@ typedef NS_ENUM(NSInteger, MyScript) {
     TIMER,
     CHECKLOGIN,
     AUTOLOGIN,
-    AUTOLOGOUT
+    AUTOLOGOUT,
+    REMOVECOMPUTERLIST,
+    ADDCOMPUTERLIST
 };
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
@@ -32,28 +34,27 @@ typedef NS_ENUM(NSInteger, MyScript) {
     enum MyScript sendWhichScript;
     
 }
--(void) openFile:(NSString *)filename;
--(void) writeResultFile;
 
--(NSString *) newComputerScript:(NSString *)selectedServer;
--(void) newComputerList:(NSString *)selectedServer;
--(NSString *) removeComputerScript:(NSString *)selectedServer;
--(void)removeComputer:(NSString *)selectedServer;
+//preparing the program
+-(void) openFile:(NSString *)filename;
+
+//exiting the program
+-(void) writeResultFile;
 -(void)checkAllServers:(int)time;
 
--(void) loginToServer:(NSString *)user pw:(NSString *)password;
--(BOOL) sendTimerToServer:(int)time script:(enum MyScript)kind;
--(void) logoutOfServer:(NSString *)user;
-
-
+// the Scripts for unix command / ask ARD to do something
 -(NSString *) loginScript:(NSString *)user pw:(NSString *)password;
--(NSString *) timerScript:(int)time;
 -(NSString *) logoutScript:(NSString *)user;
+-(NSString *) timerScript:(int)time;
 -(NSString *) checkUserLogin;
+-(NSString *) newComputerScript:(NSString *)selectedServer;
+-(NSString *) removeComputerScript:(NSString *)selectedServer;
 
+// Create the script and send it to ARD
+-(BOOL) sendUserToServer:(NSString *)user pw:(NSString *)password timer:(int)time script:(enum MyScript)kind server:(NSString *) selectedServer;
+
+//MISC - debugging
 -(void) printDictionary;
-
-
 @property (weak) IBOutlet NSTextField *statusLabel;
 
 
