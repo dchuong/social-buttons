@@ -42,7 +42,7 @@ typedef NS_ENUM(NSInteger, MyScript) {
 -(void) writeResultFile;
 -(void)checkAllServers:(int)time;
 
-// the Scripts for unix command / ask ARD to do something
+// the Scripts for unix command or ask the ARD to do something
 -(NSString *) loginScript:(NSString *)user pw:(NSString *)password;
 -(NSString *) logoutScript:(NSString *)user;
 -(NSString *) timerScript:(int)time;
@@ -50,8 +50,8 @@ typedef NS_ENUM(NSInteger, MyScript) {
 -(NSString *) newComputerScript:(NSString *)selectedServer;
 -(NSString *) removeComputerScript:(NSString *)selectedServer;
 
-// Create the script and send it to ARD
--(BOOL) sendUserToServer:(NSString *)user pw:(NSString *)password timer:(int)time script:(enum MyScript)kind server:(NSString *) selectedServer;
+// Create the script and send it to the ARD
+-(BOOL) sendUserToServer:(NSString *)user pw:(NSString *)password timer:(int)time server:(NSString *) selectedServer script:(enum MyScript)kind;
 
 //MISC - debugging
 -(void) printDictionary;

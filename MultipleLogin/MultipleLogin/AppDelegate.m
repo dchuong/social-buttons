@@ -38,7 +38,7 @@
         currentServer = key;
         
         // make a new server list with a single computer
-        [self sendUserToServer:@"" pw:@"" timer:0 script:sendWhichScript = ADDCOMPUTERLIST server:currentServer];
+        [self sendUserToServer:@"" pw:@"" timer:0 server:currentServer script:sendWhichScript = ADDCOMPUTERLIST];
         [checkServerList addObject:[NSString stringWithFormat:@"%@", currentServer]];
         NSMutableArray * theUsers = allUser[key];
         
@@ -49,14 +49,14 @@
             NSString * tempPassword = [theUsers[i] getPassword];
     
             // login
-            [self sendUserToServer:tempUsername pw:tempPassword timer:0 script:sendWhichScript = AUTOLOGIN server:currentServer];
+            [self sendUserToServer:tempUsername pw:tempPassword timer:0 server:currentServer script:sendWhichScript = AUTOLOGIN];
             // start time
             NSDate * startDate = [NSDate date];
             UserInformation * userInfo = [[UserInformation alloc] initUser:tempUsername password:@""];
             [_statusLabel setStringValue:[NSString stringWithFormat:@"It is currently on server: %@ %@", key, tempUsername]];
             sleep(5);
             
-            if ([self sendUserToServer:@"" pw:@"" timer:90 script:sendWhichScript = TIMER server:currentServer]) {
+            if ([self sendUserToServer:@"" pw:@"" timer:90 server:currentServer script:sendWhichScript = TIMER]) {
                 NSDate * finishDate = [NSDate date];
                 NSTimeInterval executionTime = [finishDate timeIntervalSinceDate:startDate];
                 NSLog(@"Execution Time: %f", executionTime);
@@ -77,14 +77,14 @@
             sleep(10);
             // remove the active script for timer
             [ScriptToRemoteDesktop stopCurrentTaskScript];
-            [self sendUserToServer:tempUsername pw:@"" timer:0 script:sendWhichScript = AUTOLOGOUT server: currentServer];
+            [self sendUserToServer:tempUsername pw:@"" timer:0 server:currentServer script:sendWhichScript = AUTOLOGOUT];
             sleep(2);
             // remove the active script for logout
             [ScriptToRemoteDesktop stopCurrentTaskScript];
             sleep(3);
             NSLog(@"\n");
         }
-        [self sendUserToServer:@"" pw:@"" timer:0 script:sendWhichScript = REMOVECOMPUTERLIST server: currentServer];
+        [self sendUserToServer:@"" pw:@"" timer:0 server:currentServer script:sendWhichScript = REMOVECOMPUTERLIST];
       
         sleep(2);
     }
@@ -107,13 +107,15 @@
 }
 
 -(void) openFile:(NSString *)filename{
+    
+    
     // get the desktop path
     NSArray * paths = NSSearchPathForDirectoriesInDomains (NSDesktopDirectory, NSUserDomainMask, YES);
     NSString * desktopPath = [paths objectAtIndex:0];
     // open up the file
     NSString * filePath = [NSString stringWithFormat:@"%@/%@", desktopPath, filename];
-    NSString * text = [NSString stringWithContentsOfFile:filePath encoding:NSASCIIStringEncoding error:NULL];
-    
+    NSString * text = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:NULL];
+ 
     // seperate by new lines
     NSArray * textByLines = [text componentsSeparatedByString:@"\n"];
     if ([textByLines count] == 0) {
@@ -126,6 +128,9 @@
     //add an array of user information into the key of the hashmap
     //TODO: need to fix dictionary - check if there is an array already in the dictionary
     for (NSString * line in textByLines) {
+        if ([line length] == 0) {
+            continue;
+        }
         NSArray * components = [line componentsSeparatedByString:@"/"];
         UserInformation * user = [[UserInformation alloc] initUser:components[1] password:components[2]];
         
@@ -148,14 +153,14 @@
 //go through the unique server in the textfile and check if any user is still login
 - (void)checkAllServers:(int)time  {
     sleep(3);
-    for (NSString * server in checkServerList) {
-    [self sendUserToServer:@"" pw:@"" timer:0 script:sendWhichScript = ADDCOMPUTERLIST server: server];
-        if ([self sendUserToServer:@"" pw:@"" timer:time script:sendWhichScript = CHECKLOGIN server:server]) {
-            [self sendUserToServer:@"root" pw:@"" timer:0 script:sendWhichScript = AUTOLOGOUT server:server];
+    for (NSString * oneServer in checkServerList) {
+    [self sendUserToServer:@"" pw:@"" timer:0 server:oneServer script:sendWhichScript = ADDCOMPUTERLIST ];
+        if ([self sendUserToServer:@"" pw:@"" timer:time server:oneServer script:sendWhichScript = CHECKLOGIN]) {
+            [self sendUserToServer:@"root" pw:@"" timer:0 server:oneServer script:sendWhichScript = AUTOLOGOUT];
             [ScriptToRemoteDesktop stopCurrentTaskScript];
         };
         [ScriptToRemoteDesktop stopCurrentTaskScript];
-        [self sendUserToServer:@"" pw:@"" timer:0 script:sendWhichScript = REMOVECOMPUTERLIST server: server];
+        [self sendUserToServer:@"" pw:@"" timer:0 server:oneServer script:sendWhichScript = REMOVECOMPUTERLIST];
 
     }
 }
@@ -307,7 +312,7 @@
 }
 
 // this function creates the script and send it to ARD
--(BOOL) sendUserToServer:(NSString *)user pw:(NSString *)password timer:(int)time script:(enum MyScript)kind server:(NSString *) selectedServer {
+-(BOOL) sendUserToServer:(NSString *)user pw:(NSString *)password timer:(int)time server:(NSString *) selectedServer script:(enum MyScript)kind {
     NSDictionary* errorDict;
     NSAppleEventDescriptor* returnDescriptor = NULL;
     NSString * scriptString;
