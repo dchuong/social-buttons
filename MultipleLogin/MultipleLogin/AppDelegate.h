@@ -18,7 +18,8 @@ typedef NS_ENUM(NSInteger, MyScript) {
     AUTOLOGIN,
     AUTOLOGOUT,
     REMOVECOMPUTERLIST,
-    ADDCOMPUTERLIST
+    ADDCOMPUTERLIST,
+    KILL_LOGINWINDOW
 };
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
@@ -49,6 +50,7 @@ typedef NS_ENUM(NSInteger, MyScript) {
 -(NSString *) checkUserLogin;
 -(NSString *) newComputerScript:(NSString *)selectedServer;
 -(NSString *) removeComputerScript:(NSString *)selectedServer;
+-(NSString *) kill_all_login_window;
 
 // Create the script and send it to the ARD
 -(BOOL) sendUserToServer:(NSString *)user pw:(NSString *)password timer:(int)time server:(NSString *) selectedServer script:(enum MyScript)kind;

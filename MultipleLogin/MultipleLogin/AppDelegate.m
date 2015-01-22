@@ -20,7 +20,6 @@
 //TODO: need to functionalize sending the commands to ARD into one function
 //TODO: clean derrickcomplist even if it crash or stop
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    BOOL writeUserTime = NO;
     allUser = [[NSMutableDictionary alloc] init];
     loginErrorList = [[NSMutableArray alloc] init];
     logoutErrorList = [[NSMutableArray alloc] init];
@@ -44,10 +43,12 @@
         
         // go through the array of user for that server
         for (int i = 0; i < [theUsers count]; i++) {
-            writeUserTime = NO;
             NSString * tempUsername = [theUsers[i] getUsername];
             NSString * tempPassword = [theUsers[i] getPassword];
     
+            // clean the login window
+            [self sendUserToServer:@"" pw:@"" timer:0 server:currentServer script:sendWhichScript = KILL_LOGINWINDOW];
+            sleep(7);
             // login
             [self sendUserToServer:tempUsername pw:tempPassword timer:0 server:currentServer script:sendWhichScript = AUTOLOGIN];
             // start time
@@ -68,7 +69,6 @@
                 else {
                     [userInfo setTime:[NSString stringWithFormat:@"%f", executionTime]];
                 }
-                writeUserTime = YES;
                 [resultLoginDict[currentServer] addObject:userInfo];
             // For some servers the timer has stop but the ARD active tasks keep continuing (infinite loop from ARD)
             
@@ -81,7 +81,7 @@
             sleep(2);
             // remove the active script for logout
             [ScriptToRemoteDesktop stopCurrentTaskScript];
-            sleep(3);
+            sleep(7);
             NSLog(@"\n");
         }
         [self sendUserToServer:@"" pw:@"" timer:0 server:currentServer script:sendWhichScript = REMOVECOMPUTERLIST];
@@ -250,6 +250,7 @@
 }
 
 //login using applescript for unix ARD
+//killall loginwindow to reset the cursor to the userfield
 -(NSString *) loginScript:(NSString *)user pw:(NSString *)password; {
     NSString * loginSource = [NSString stringWithFormat:
     @"tell application \"Remote Desktop\" to activate \n"
@@ -310,6 +311,20 @@
     
     return logoutSource;
 }
+-(NSString *) kill_all_login_window {
+    
+    NSString * killScript = [NSString stringWithFormat:
+                             @"tell application \"Remote Desktop\"\n"
+                             "set theComputers to first computer of computer list \"%@\"\n" // first %@
+                             "repeat with x in theComputers\n"
+                             "set thescript to \"killall loginwindow\"\n"
+                             "set thetask to make new send unix command task with properties {name:\"CleanLogin\", script:thescript, showing output:false, user:\"root\"}\n"
+                             "execute thetask on x\n"
+                             "end repeat\n"
+                           "end tell", myComputerList];
+    
+    return killScript;
+}
 
 // this function creates the script and send it to ARD
 -(BOOL) sendUserToServer:(NSString *)user pw:(NSString *)password timer:(int)time server:(NSString *) selectedServer script:(enum MyScript)kind {
@@ -317,6 +332,7 @@
     NSAppleEventDescriptor* returnDescriptor = NULL;
     NSString * scriptString;
 
+     NSString * path = @"/Users/derrick/Desktop/MultipleLogin/CleanLogin.scpt";
     /* for debugging
      NSString * path = @"/Users/derrick/Desktop/MultipleLogin/LoginScript.scpt";
      [loginString writeToFile:path atomically:YES encoding:NSUnicodeStringEncoding error:nil];
@@ -342,6 +358,9 @@
             break;
         case REMOVECOMPUTERLIST:
             scriptString = [self removeComputerScript:selectedServer];
+            break;
+        case KILL_LOGINWINDOW:
+            scriptString = [self kill_all_login_window];
             break;
         default:
             break;
