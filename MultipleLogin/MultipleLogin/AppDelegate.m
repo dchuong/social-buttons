@@ -16,8 +16,6 @@
 @implementation AppDelegate
 
 // main loop
-//TODO: line cartiage in reading the text file
-//TODO: need to functionalize sending the commands to ARD into one function
 //TODO: clean derrickcomplist even if it crash or stop
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     allUser = [[NSMutableDictionary alloc] init];
@@ -27,7 +25,7 @@
     checkServerList = [[NSMutableArray alloc] init];
     
     myComputerList = @"DerrickCompList";
-    [self openFile:@"usertest.txt"]; // The text file needs to be in the desktop and the name goes here.
+    [self openFile:@"userInfo.txt"]; // The text file needs to be in the desktop and the name goes here.
     
     // enumerate each users to login and logout
     // allUser is a dictionary ( hashmap in C++ )
@@ -45,10 +43,11 @@
         for (int i = 0; i < [theUsers count]; i++) {
             NSString * tempUsername = [theUsers[i] getUsername];
             NSString * tempPassword = [theUsers[i] getPassword];
-    
+            
             // clean the login window
             [self sendUserToServer:@"" pw:@"" timer:0 server:currentServer script:sendWhichScript = KILL_LOGINWINDOW];
             sleep(7);
+            [ScriptToRemoteDesktop stopCurrentTaskScript];
             // login
             [self sendUserToServer:tempUsername pw:tempPassword timer:0 server:currentServer script:sendWhichScript = AUTOLOGIN];
             // start time
@@ -61,7 +60,7 @@
                 NSDate * finishDate = [NSDate date];
                 NSTimeInterval executionTime = [finishDate timeIntervalSinceDate:startDate];
                 NSLog(@"Execution Time: %f", executionTime);
-            
+                
                 //if the login takes too long - stop it and keep going
                 if(executionTime > 95) {
                     [userInfo setTime:[NSString stringWithFormat:@"Took too long to login (over %f)", executionTime]];
@@ -70,10 +69,10 @@
                     [userInfo setTime:[NSString stringWithFormat:@"%f", executionTime]];
                 }
                 [resultLoginDict[currentServer] addObject:userInfo];
-            // For some servers the timer has stop but the ARD active tasks keep continuing (infinite loop from ARD)
-            
+                // For some servers the timer has stop but the ARD active tasks keep continuing (infinite loop from ARD)
+                
             }
-  
+            
             sleep(10);
             // remove the active script for timer
             [ScriptToRemoteDesktop stopCurrentTaskScript];
@@ -85,7 +84,7 @@
             NSLog(@"\n");
         }
         [self sendUserToServer:@"" pw:@"" timer:0 server:currentServer script:sendWhichScript = REMOVECOMPUTERLIST];
-      
+        
         sleep(2);
     }
     //check if all users are logout in server
@@ -95,15 +94,16 @@
     NSLog(@"ERRORS REPORT");
     NSLog(@"Number of Login Errors: %lu", (unsigned long)[loginErrorList count]);
     NSLog(@"Number of Logout Errors: %lu", (unsigned long)[logoutErrorList count]);
-   
+    
     NSLog(@"checking servers");
     [self checkAllServers:3];
-
+    [NSApp terminate:self];
+    
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
-
+    
 }
 
 -(void) openFile:(NSString *)filename{
@@ -115,7 +115,7 @@
     // open up the file
     NSString * filePath = [NSString stringWithFormat:@"%@/%@", desktopPath, filename];
     NSString * text = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:NULL];
- 
+    
     // seperate by new lines
     NSArray * textByLines = [text componentsSeparatedByString:@"\n"];
     if ([textByLines count] == 0) {
@@ -139,7 +139,7 @@
             [allUser[components[0]] addObject:user];
         }
         else {
-        // if key doesn't exists create a new array for that key
+            // if key doesn't exists create a new array for that key
             oneServerArray = [[NSMutableArray alloc] init];
             NSMutableArray * resultArray = [[NSMutableArray alloc] init];
             [resultLoginDict setValue:resultArray forKey:components[0]];
@@ -154,14 +154,14 @@
 - (void)checkAllServers:(int)time  {
     sleep(3);
     for (NSString * oneServer in checkServerList) {
-    [self sendUserToServer:@"" pw:@"" timer:0 server:oneServer script:sendWhichScript = ADDCOMPUTERLIST ];
+        [self sendUserToServer:@"" pw:@"" timer:0 server:oneServer script:sendWhichScript = ADDCOMPUTERLIST ];
         if ([self sendUserToServer:@"" pw:@"" timer:time server:oneServer script:sendWhichScript = CHECKLOGIN]) {
             [self sendUserToServer:@"root" pw:@"" timer:0 server:oneServer script:sendWhichScript = AUTOLOGOUT];
             [ScriptToRemoteDesktop stopCurrentTaskScript];
         };
         [ScriptToRemoteDesktop stopCurrentTaskScript];
         [self sendUserToServer:@"" pw:@"" timer:0 server:oneServer script:sendWhichScript = REMOVECOMPUTERLIST];
-
+        
     }
 }
 
@@ -170,13 +170,21 @@
     
     NSArray * paths = NSSearchPathForDirectoriesInDomains (NSDesktopDirectory, NSUserDomainMask, YES);
     NSString * desktopPath = [paths objectAtIndex:0];
+    NSString * absolutePath = [NSString stringWithFormat:@"%@/LoginResult", desktopPath];
+    
+    //create directory
+    if (![[NSFileManager defaultManager] fileExistsAtPath:absolutePath]){
+        [[NSFileManager defaultManager] createDirectoryAtPath:absolutePath withIntermediateDirectories:NO attributes:nil error:nil];
+    }
+    
+    
     NSDate * currentDate = [NSDate date];
     NSCalendar* calendar = [NSCalendar currentCalendar];
     NSDateComponents* components = [calendar components:NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:currentDate];
     NSString * outFilePath;
     int i = 1;
     while (true) {
-        outFilePath = [NSString stringWithFormat:@"%@/result (%ld-%ld-%ld)%i.txt", desktopPath, (long)[components month], (long)[components day], (long)[components year], i];
+        outFilePath = [NSString stringWithFormat:@"%@/result (%ld-%ld-%ld)%i.txt", absolutePath, (long)[components month], (long)[components day], (long)[components year], i];
         NSFileManager* fileMgr = [NSFileManager defaultManager];
         BOOL fileExists = [fileMgr fileExistsAtPath:outFilePath];
         if (fileExists == NO) {
@@ -184,10 +192,10 @@
         }
         i++;
     }
- 
-
+    
+    
     NSString * outputString = @"";
-   
+    
     // go through the success
     for(NSString * key in resultLoginDict) {
         outputString = [NSString stringWithFormat:@"%@%@:\n",outputString,key];
@@ -204,7 +212,7 @@
     outputString = [NSString stringWithFormat:@"%@Number of Login Errors: %lu\n", outputString,(unsigned long)[loginErrorList count]];
     outputString = [NSString stringWithFormat:@"%@Number of Logout Errors: %lu\n\n", outputString,(unsigned long)[logoutErrorList count]];
     
-     // go through the errors
+    // go through the errors
     for(int i = 0; i < [loginErrorList count]; i++){
         outputString = [NSString stringWithFormat:@"%@%@\n", outputString, loginErrorList[i]];
     }
@@ -212,7 +220,7 @@
         outputString = [NSString stringWithFormat:@"%@%@\n", outputString, logoutErrorList[i]];
     }
     [outputString writeToFile:outFilePath atomically:YES encoding:NSUnicodeStringEncoding error:nil];
-
+    
 }
 
 
@@ -220,22 +228,22 @@
 // The list with all the computers have to be named All Computers
 -(NSString *) newComputerScript:(NSString *)selectedServer {
     NSString * createComputer = [NSString stringWithFormat:
-    @"tell application \"Remote Desktop\"\n"
-    "set computerList to (every computer of computer list \"All Computers\")\n"
-    "repeat with comp in computerList\n"
-    "set serverName to name of comp\n"
-    
-    "set derrickCompList to \"%@\"\n" //first %@
+                                 @"tell application \"Remote Desktop\"\n"
+                                 "set computerList to (every computer of computer list \"All Computers\")\n"
+                                 "repeat with comp in computerList\n"
+                                 "set serverName to name of comp\n"
+                                 
+                                 "set derrickCompList to \"%@\"\n" //first %@
                                  "if ((serverName as string) is equal to \"%@\") then\n" // 2nd %@
                                  "if (not (exists computer list derrickCompList)) then\n"
-                                "make new computer list with properties {name:derrickCompList}\n"
+                                 "make new computer list with properties {name:derrickCompList}\n"
                                  
                                  "end if\n"
                                  
-    "add comp to computer list derrickCompList\n" //
-    "end if\n"
-    "end repeat\n"
-    "end tell", myComputerList, selectedServer];
+                                 "add comp to computer list derrickCompList\n" //
+                                 "end if\n"
+                                 "end repeat\n"
+                                 "end tell", myComputerList, selectedServer];
     return createComputer;
     
 }
@@ -253,15 +261,15 @@
 //killall loginwindow to reset the cursor to the userfield
 -(NSString *) loginScript:(NSString *)user pw:(NSString *)password; {
     NSString * loginSource = [NSString stringWithFormat:
-    @"tell application \"Remote Desktop\" to activate \n"
-    "tell application \"Remote Desktop\"\n"
-    "set theComputers to first computer of computer list \"%@\"\n" // first %@
-    "repeat with x in theComputers\n"
-    "set thescript to \"osascript -e 'tell application \\\"System Events\\\"' -e 'keystroke \\\"%@\\\"' -e 'keystroke tab' -e 'delay 0.5' -e 'keystroke \\\"%@\\\"' -e 'delay 0.5' -e 'keystroke return' -e 'end tell'\"\n" // 2nd , 3rd %@
-    "set thetask to make new send unix command task with properties {name:\"Login\", script:thescript, showing output:false, user:\"root\"}\n"
-    "execute thetask on x\n"
-    "end repeat\n"
-    "end tell", myComputerList ,user, password];
+                              @"tell application \"Remote Desktop\" to activate \n"
+                              "tell application \"Remote Desktop\"\n"
+                              "set theComputers to first computer of computer list \"%@\"\n" // first %@
+                              "repeat with x in theComputers\n"
+                              "set thescript to \"osascript -e 'tell application \\\"System Events\\\"' -e 'keystroke \\\"%@\\\"' -e 'keystroke tab' -e 'delay 0.5' -e 'keystroke \\\"%@\\\"' -e 'delay 0.5' -e 'keystroke return' -e 'end tell'\"\n" // 2nd , 3rd %@
+                              "set thetask to make new send unix command task with properties {name:\"Login\", script:thescript, showing output:false, user:\"root\"}\n"
+                              "execute thetask on x\n"
+                              "end repeat\n"
+                              "end tell", myComputerList ,user, password];
     return loginSource;
 }
 
@@ -269,32 +277,32 @@
 - (NSString *) timerScript:(int)time {
     
     NSString * timerSource = [NSString stringWithFormat:
-                               @"tell application \"Remote Desktop\"\n"
+                              @"tell application \"Remote Desktop\"\n"
                               "set theComputers to first computer of computer list \"%@\"\n" // first %@
                               "repeat with x in theComputers\n"
                               "set thescript to \"osascript <<EndOfMyScript \nset startTime to (get current date)\nset loggedInUser to do shell script \\\"/bin/ls -l /dev/console | /usr/bin/awk \\\\\\\"{print $3 }\\\\\\\"\\\" \n set check_user to words 3 of loggedInUser \nglobal findUser\n set findUser to true \n repeat while findUser = true \n set loggedInUser to do shell script \\\"/bin/ls -l /dev/console | /usr/bin/awk \\\\\\\"{print $3 }\\\\\\\"\\\"\n set check_user to words 3 of loggedInUser\n if (check_user is not equal to \\\"root\\\") then \n set findUser to false \n end if \n set endTime to (get current date) \n set duration to endTime - startTime \n if (duration > %i) then error number -128 \n end repeat \nEndOfMyScript\"\n"
-                               "set thetask to make new send unix command task with properties {name:\"Timer\", script:thescript, showing output:false, user:\"root\"}\n"
-                               "execute thetask on x\n"
-                               "end repeat\n"
-                               "end tell\n"
-                               "return true", myComputerList, time];
+                              "set thetask to make new send unix command task with properties {name:\"Timer\", script:thescript, showing output:false, user:\"root\"}\n"
+                              "execute thetask on x\n"
+                              "end repeat\n"
+                              "end tell\n"
+                              "return true", myComputerList, time];
     
     return timerSource;
 }
 
 - (NSString *)checkUserLogin {
     NSString * checkUser = [NSString stringWithFormat:
-                              @"tell application \"Remote Desktop\"\n"
-                              "set theComputers to first computer of computer list \"%@\"\n" // first %@
-                              "repeat with x in theComputers\n"
-                              "set thescript to \"osascript <<EndOfMyScript \nset loggedInUser to do shell script \\\"/bin/ls -l /dev/console | /usr/bin/awk \\\\\\\"{print $3 }\\\\\\\"\\\" \n set check_user to words 3 of loggedInUser \n if (check_user is equal to \\\"root\\\") then error number -128 \nEndOfMyScript\"\n"
-                              "set thetask to make new send unix command task with properties {name:\"CheckUser\", script:thescript, showing output:false, user:\"root\"}\n"
-                              "execute thetask on x\n"
-                              "end repeat\n"
-                              "end tell", myComputerList];
+                            @"tell application \"Remote Desktop\"\n"
+                            "set theComputers to first computer of computer list \"%@\"\n" // first %@
+                            "repeat with x in theComputers\n"
+                            "set thescript to \"osascript <<EndOfMyScript \nset loggedInUser to do shell script \\\"/bin/ls -l /dev/console | /usr/bin/awk \\\\\\\"{print $3 }\\\\\\\"\\\" \n set check_user to words 3 of loggedInUser \n if (check_user is equal to \\\"root\\\") then error number -128 \nEndOfMyScript\"\n"
+                            "set thetask to make new send unix command task with properties {name:\"CheckUser\", script:thescript, showing output:false, user:\"root\"}\n"
+                            "execute thetask on x\n"
+                            "end repeat\n"
+                            "end tell", myComputerList];
     
     return checkUser;
-   
+    
 }
 
 // logout using a command shell
@@ -321,7 +329,7 @@
                              "set thetask to make new send unix command task with properties {name:\"CleanLogin\", script:thescript, showing output:false, user:\"root\"}\n"
                              "execute thetask on x\n"
                              "end repeat\n"
-                           "end tell", myComputerList];
+                             "end tell", myComputerList];
     
     return killScript;
 }
@@ -331,8 +339,8 @@
     NSDictionary* errorDict;
     NSAppleEventDescriptor* returnDescriptor = NULL;
     NSString * scriptString;
-
-     NSString * path = @"/Users/derrick/Desktop/MultipleLogin/CleanLogin.scpt";
+    
+    NSString * path = @"/Users/derrick/Desktop/MultipleLogin/CleanLogin.scpt";
     /* for debugging
      NSString * path = @"/Users/derrick/Desktop/MultipleLogin/LoginScript.scpt";
      [loginString writeToFile:path atomically:YES encoding:NSUnicodeStringEncoding error:nil];
