@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
     <key>ParentRecipe</key>
-    <string>com.github.dchuong.social-buttons.munki.pkg.Firefox</string>
+    <string>com.github.dchuong.social-buttons.pkg.Firefox</string>
     <key>Description</key>
     <string>Import Firefox</string>
     <key>Identifier</key>
-    <string>com.github.dchuong.social-buttons.munki.pkg.Firefox</string>
+    <string>com.github.dchuong.social-buttons.munki.Firefox</string>
     <key>Input</key>
     <dict>
         <key>NAME</key>
